@@ -1,0 +1,222 @@
+/* config.h.in.  Generated from configure.ac by autoheader.  */
+
+/* Darwin System */
+#undef DARWIN
+
+/* OSX 10.6 */
+#undef DARWIN_106
+
+/* OSX 10.7 */
+#undef DARWIN_107
+
+/* OSX 10.8 */
+#undef DARWIN_108
+
+/* OSX 10.9 */
+#undef DARWIN_109
+
+/* FreeBSD System */
+#undef FREEBSD
+
+/* Define to 1 if you have the <curl/curl.h> header file. */
+#undef HAVE_CURL_CURL_H
+
+/* Define to 1 if you have the <dlfcn.h> header file. */
+#undef HAVE_DLFCN_H
+
+/* Define to 1 if you have the <inttypes.h> header file. */
+#undef HAVE_INTTYPES_H
+
+/* Define to 1 if you have the `crypto' library (-lcrypto). */
+#undef HAVE_LIBCRYPTO
+
+/* Define to 1 if you have the `curl' library (-lcurl). */
+#undef HAVE_LIBCURL
+
+/* Define to 1 if you have the `pam' library (-lpam). */
+#undef HAVE_LIBPAM
+
+/* Define to 1 if your system has a GNU libc compatible `malloc' function, and
+   to 0 otherwise. */
+#undef HAVE_MALLOC
+
+/* Define to 1 if you have the <memory.h> header file. */
+#undef HAVE_MEMORY_H
+
+/* Define to 1 if you have the `memset' function. */
+#undef HAVE_MEMSET
+
+/* Define to 1 if you have the <openssl/bio.h> header file. */
+#undef HAVE_OPENSSL_BIO_H
+
+/* Define to 1 if you have the <openssl/buffer.h> header file. */
+#undef HAVE_OPENSSL_BUFFER_H
+
+/* Define to 1 if you have the <openssl/evp.h> header file. */
+#undef HAVE_OPENSSL_EVP_H
+
+/* Define to 1 if you have the <openssl/hmac.h> header file. */
+#undef HAVE_OPENSSL_HMAC_H
+
+/* Define to 1 if you have the <security/openpam.h> header file. */
+#undef HAVE_SECURITY_OPENPAM_H
+
+/* Define to 1 if you have the <security/pam_appl.h> header file. */
+#undef HAVE_SECURITY_PAM_APPL_H
+
+/* Define to 1 if you have the <security/pam_misc.h> header file. */
+#undef HAVE_SECURITY_PAM_MISC_H
+
+/* Define to 1 if you have the <security/pam_modules.h> header file. */
+#undef HAVE_SECURITY_PAM_MODULES_H
+
+/* Define to 1 if you have the <security/pam_modutil.h> header file. */
+#undef HAVE_SECURITY_PAM_MODUTIL_H
+
+/* Define to 1 if you have the <security/_pam_macros.h> header file. */
+#undef HAVE_SECURITY__PAM_MACROS_H
+
+/* Define to 1 if you have the <stdint.h> header file. */
+#undef HAVE_STDINT_H
+
+/* Define to 1 if you have the <stdlib.h> header file. */
+#undef HAVE_STDLIB_H
+
+/* Define to 1 if you have the `strchr' function. */
+#undef HAVE_STRCHR
+
+/* Define to 1 if you have the `strerror' function. */
+#undef HAVE_STRERROR
+
+/* Define to 1 if you have the <strings.h> header file. */
+#undef HAVE_STRINGS_H
+
+/* Define to 1 if you have the <string.h> header file. */
+#undef HAVE_STRING_H
+
+/* Define to 1 if you have the `strstr' function. */
+#undef HAVE_STRSTR
+
+/* Define to 1 if you have the <syslog.h> header file. */
+#undef HAVE_SYSLOG_H
+
+/* Define to 1 if you have the <sys/stat.h> header file. */
+#undef HAVE_SYS_STAT_H
+
+/* Define to 1 if you have the <sys/types.h> header file. */
+#undef HAVE_SYS_TYPES_H
+
+/* Define to 1 if you have the <unistd.h> header file. */
+#undef HAVE_UNISTD_H
+
+/* HP-UX System */
+#undef HPUX
+
+/* Configuration directory */
+#undef LATCH_CONF_DIR
+
+/* Linux System */
+#undef LINUX
+
+/* Linux 2.0 System */
+#undef LINUX_20
+
+/* Linux 2.1 System */
+#undef LINUX_21
+
+/* Linux 2.2 System */
+#undef LINUX_22
+
+/* Linux 2.3 System */
+#undef LINUX_23
+
+/* Linux 2.4 System */
+#undef LINUX_24
+
+/* Linux 2.5 System */
+#undef LINUX_25
+
+/* Linux 2.6 System */
+#undef LINUX_26
+
+/* Linux 3.0 System */
+#undef LINUX_30
+
+/* Linux 3.1 System */
+#undef LINUX_31
+
+/* Linux 3.2 System */
+#undef LINUX_32
+
+/* Define to the sub-directory in which libtool stores uninstalled libraries.
+   */
+#undef LT_OBJDIR
+
+/* NetBSD System */
+#undef NETBSD
+
+/* Define to 1 if your C compiler doesn't accept -c and -o together. */
+#undef NO_MINUS_C_MINUS_O
+
+/* OpenBSD System */
+#undef OPENBSD
+
+/* Name of package */
+#undef PACKAGE
+
+/* Define to the address where bug reports for this package should be sent. */
+#undef PACKAGE_BUGREPORT
+
+/* Define to the full name of this package. */
+#undef PACKAGE_NAME
+
+/* Define to the full name and version of this package. */
+#undef PACKAGE_STRING
+
+/* Define to the one symbol short name of this package. */
+#undef PACKAGE_TARNAME
+
+/* Define to the home page for this package. */
+#undef PACKAGE_URL
+
+/* Define to the version of this package. */
+#undef PACKAGE_VERSION
+
+/* Solaris System */
+#undef SOLARIS
+
+/* Solaris 2.51 System */
+#undef SOLARIS_251
+
+/* Solaris 2.6 System */
+#undef SOLARIS_26
+
+/* Solaris 2.7 System */
+#undef SOLARIS_27
+
+/* Solaris 2.8 System */
+#undef SOLARIS_28
+
+/* Solaris 2.9 System */
+#undef SOLARIS_29
+
+/* Define to 1 if you have the ANSI C header files. */
+#undef STDC_HEADERS
+
+/* Version number of package */
+#undef VERSION
+
+/* Define to `int' if <sys/types.h> doesn't define. */
+#undef gid_t
+
+/* Define to rpl_malloc if the replacement function should be used. */
+#undef malloc
+
+/* Define to `unsigned int' if <sys/types.h> does not define. */
+#undef size_t
+
+/* Define to `int' if <sys/types.h> does not define. */
+#undef ssize_t
+
+/* Define to `int' if <sys/types.h> doesn't define. */
+#undef uid_t

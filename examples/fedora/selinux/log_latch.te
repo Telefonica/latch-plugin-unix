@@ -1,0 +1,16 @@
+
+module log_latch 1.0;
+
+require {
+	type http_port_t;
+	type sshd_t;
+	type cert_t;
+	class tcp_socket name_connect;
+	class dir write;
+}
+
+#============= sshd_t ==============
+allow sshd_t cert_t:dir write;
+
+#!!!! This avc is allowed in the current policy
+allow sshd_t http_port_t:tcp_socket name_connect;

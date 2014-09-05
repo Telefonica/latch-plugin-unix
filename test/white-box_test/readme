@@ -1,0 +1,10 @@
+
+# Install and configure the plugin
+./configure && make && sudo make install
+
+# Edit App_id and Secret_key parameters, and add a test_op operation.
+
+# Execute test
+./all_no_sudo_test.sh
+sudo ./all_test.sh
+

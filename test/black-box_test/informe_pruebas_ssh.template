@@ -1,0 +1,138 @@
+#Pruebas funcionales sobre plugin
+*Generado automáticamente*
+
+**Prueba:** TEST_NAME  
+**Herramienta:** latch-ssh  
+**Entorno:** LATCH_ENVIRONMENT   
+**Versión:** LATCH_VERSION  
+**Sistema:**  SYSTEM  
+**Fecha:** DATE  
+
+
+
+###1ª Prueba: Bloqueo de cuenta SSH mediante aplicación latch-UNIX pareada
+
+1º- Se procede a bloquear  
+2º- Se intenta ejecutar el comando whoami con SSH en la cuenta pareada  
+
+Interacción automatizada:  
+```
+RESPONSE_1_
+```
+
+###2ª Prueba: Intento inicio de sesión con la cuenta bloqueada y la información del AppID y Secret Key han sido cambiados por el Administrador
+
+1º- Se establece una configuración errónea  
+2º- Se procede a activar el bloqueo de la cuenta en la aplicación del smartphone  
+3º- Se intenta ejecutar el comando whoami con SSH en la cuenta pareada    
+
+Interacción automatizada: 
+```
+RESPONSE_2_
+```
+
+###3ª Prueba: Desbloqueo de cuenta SSH mediante aplicación latch-UNIX pareada
+  
+1º- Se procede a desbloquear  
+2º- Se intenta ejecutar el comando whoami con SSH en la cuenta pareada    
+
+Interacción automatizada: 
+```
+RESPONSE_3_
+```
+
+###4ª Prueba: Intento de inicio de sesión con una contraseña incorrecta, con el One Time Password activado
+ 
+1º- Se procede a desbloquear y activar la opción del OTP  
+2º- Se intenta ejecutar el comando whoami con SSH en la cuenta pareada   
+3º- Se introduce una contraseña incorrecta  
+
+Interacción automatizada:  
+```
+RESPONSE_4_
+```
+
+###5ª Prueba: Uso del One Time Password con cuenta desbloqueada
+ 
+1º- Se procede a desbloquear y activar la opción del OTP  
+2º- Se intenta ejecutar el comando whoami con SSH en la cuenta pareada    
+3º- Se introduce un OTP correcto  
+
+Interacción automatizada:  
+```
+RESPONSE_5_
+```
+
+###6ª Prueba: Uso del One Time Password en blanco con cuenta desbloqueada
+  
+1º- Se procede a desbloquear y activar la opción del OTP  
+2º- Se intenta ejecutar el comando whoami con SSH en la cuenta pareada    
+3º- Se introduce un OTP en blanco  
+
+Interacción automatizada:  
+```
+RESPONSE_6_
+```
+
+###7ª Prueba: Uso del One Time Password erróneo con cuenta desbloqueada
+ 
+1º- Se procede a desbloquear y activar la opción del OTP  
+2º- Se intenta ejecutar el comando whoami con SSH en la cuenta pareada   
+3º- Se introduce un OTP erróneo  
+
+Interacción automatizada:  
+```
+RESPONSE_7_
+```
+
+###8ª Prueba: Bloqueo de clave SSH mediante aplicación latch-UNIX pareada
+ 
+1º- Se procede a bloquear  
+2º- Se intenta ejecutar el comando whoami con SSH en la cuenta pareada  
+
+```
+TEST_8_
+```
+
+Respuesta: 
+```
+RESPONSE_8_
+```
+
+###9ª Prueba: Desbloqueo de clave SSH mediante aplicación latch-UNIX pareada
+  
+1º- Se procede a desbloquear  
+2º- Se intenta ejecutar el comando whoami con SSH en la cuenta pareada    
+
+```
+TEST_9_
+```
+
+Respuesta: 
+```
+RESPONSE_9_
+```
+
+###10ª Prueba: Bloqueo de cuenta SSH mediante aplicación latch-UNIX pareada y la máquina sin conexión a Internet, definiendo la opción por defecto como "open"
+
+1º- Se desconecta la red  
+2º- Se establece una configuración abierta por defecto    
+3º- Se procede a bloquear  
+4º- Se intenta ejecutar el comando whoami con SSH en la cuenta pareada  
+
+Interacción automatizada:  
+```
+RESPONSE_10_
+```
+
+###11ª Prueba: Desbloqueo de cuenta SSH mediante aplicación latch-UNIX pareada y la máquina sin conexión a Internet, definiendo la opción por defecto como "close"
+
+1º- Se desconecta la red  
+2º- Se establece una configuración cerrada por defecto    
+3º- Se procede a desbloquear  
+4º- Se intenta ejecutar el comando whoami con SSH en la cuenta pareada    
+
+Interacción automatizada:  
+```
+RESPONSE_11_
+```

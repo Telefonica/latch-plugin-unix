@@ -1,0 +1,13 @@
+policy_module(latch_ssh, 0.1);
+
+require {
+    type http_port_t;
+    type sshd_t;
+    class tcp_socket name_connect;
+}
+
+gen_tunable(ssh_can_network, false)
+
+tunable_policy(`ssh_can_network',` 
+    allow sshd_t http_port_t:tcp_socket name_connect;
+')

@@ -1,0 +1,14 @@
+
+module authlogin_latch 1.0;
+
+require {
+	type http_port_t;
+	type sshd_t;
+	class tcp_socket name_connect;
+}
+
+#============= sshd_t ==============
+
+#!!!! This avc can be allowed using one of the these booleans:
+#     nis_enabled, authlogin_yubikey
+allow sshd_t http_port_t:tcp_socket name_connect;
