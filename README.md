@@ -90,7 +90,7 @@ If you look at 'operation' parameter, it is defined the necessary operation whic
 
 
 
-##INSTALING THE PLUGIN IN SSH
+##INSTALLING THE PLUGIN IN SSH
 * Edit sshd_config (usually in /etc or /etc/ssh) to add the following lines:
 ```
 UsePAM yes
