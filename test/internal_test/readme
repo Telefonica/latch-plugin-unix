@@ -1,0 +1,21 @@
+## Prerrequisites
+* Bash.
+* Expect.
+* Latch-client-app tool.
+
+
+## Installation
+* Install and configure the plugin
+./configure && make && sudo make install
+
+* Edit App_id and Secret_key parameters, and add a test_op operation.
+
+* Execute test
+sudo ./test.sh
+
+* Convert markdown file to pdf -> http://www.markdowntopdf.com/
+
+
+## Pendiente
+test ssh pam:
+- Programar expect para que cada vez que recibe "Password:" envie la respuestra programada como si fuera un bucle.

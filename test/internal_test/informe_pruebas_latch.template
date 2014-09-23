@@ -1,0 +1,163 @@
+#Pruebas funcionales sobre plugin
+*Generado automáticamente*
+
+**Prueba:** TEST_NAME  
+**Herramienta:** latch  
+**Entorno:** LATCH_ENVIRONMENT  
+**Versión:** LATCH_VERSION  
+**Sistema:**  SYSTEM  
+**Fecha:** DATE  
+
+
+###1ª Prueba: Intento de pareo con configuración errónea de los valores Secret_key o Application_ID
+
+1º- Se establece una configuración errónea  
+2º- Se procede a intentar parear la aplicación  
+
+```
+TEST_1_
+```
+
+Respuesta:  
+```
+RESPONSE_1_
+```
+
+###2ª Prueba: Intento de pareo con introducción del token de pareo erróneo  
+
+1º- Se establece una configuración correcta  
+2º- Se procede a intentar parear la aplicación  
+
+```
+TEST_2_
+```
+
+Respuesta:  
+```
+RESPONSE_2_
+```
+
+###3ª Prueba: Intento de pareo con token en blanco (sin introducir nada)
+
+1º- Se establece una configuración correcta  
+2º- Se procede a intentar parear la aplicación  
+
+```
+TEST_3_
+```
+
+Respuesta:  
+```
+RESPONSE_3_
+```
+
+###4ª Prueba: Intento de pareo con token correcto
+
+1º- Se establece una configuración correcta  
+2º- Se procede a intentar parear la aplicación  
+
+```
+TEST_4_
+```
+
+Respuesta:  
+```
+RESPONSE_4_
+```
+
+###5ª Prueba: Intento de pareo estando previamente pareado  
+
+1º- Se establece una configuración correcta  
+2º- Se procede a intentar parear la aplicación  
+
+```
+TEST_5_
+```
+
+Respuesta:  
+```
+RESPONSE_5_
+```
+
+###6ª Prueba: Intento de pareo con token correcto y la máquina sin conexión a Internet
+
+1º- Se desconecta la red  
+2º- Se establece una configuración correcta  
+3º- Se procede a intentar parear la aplicación  
+
+```
+TEST_6_
+```
+
+Respuesta:  
+```
+RESPONSE_6_
+```
+
+###7ª Prueba: Consulta de estado de bloqueo de cuenta mediante aplicación latch-UNIX pareada
+
+1º- Se procede a bloquear  
+2º- Se consulta el estado de latch  
+
+```
+TEST_7_
+```
+
+Respuesta:  
+```
+RESPONSE_7_
+```
+
+###8ª Prueba: Consulta de estado de desbloqueo de cuenta mediante aplicación latch-UNIX pareada
+
+1º- Se procede a desbloquear  
+2º- Se consulta el estado de latch  
+
+```
+TEST_8_
+```
+
+Respuesta:  
+```
+RESPONSE_8_
+```
+
+###9ª Prueba: Prueba de despareo  
+
+1º- Se procede a desparear la cuenta  
+
+```
+TEST_9_
+```
+
+Respuesta:  
+```
+RESPONSE_9_
+```
+
+###10ª Prueba: Prueba de despareo estando previamente despareado  
+
+1º- Se procede a desparear la cuenta  
+
+```
+TEST_10_
+```
+
+Respuesta:  
+```
+RESPONSE_10_
+```
+
+###11ª Prueba: Prueba de despareo sin conexión a Internet
+
+1º- Se desconecta la red  
+2º- Se procede a desparear la cuenta  
+
+```
+TEST_11_
+```
+
+Respuesta:  
+```
+RESPONSE_11_
+```
