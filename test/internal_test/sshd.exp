@@ -6,7 +6,7 @@ set password [lindex $argv 1]
 set operation_id [lindex $argv 2]
 set otp_option [lindex $argv 3]
 
-spawn ssh $username@localhost whoami
+spawn ssh $username@localhost echo "ssh user authenticated!"
 
 expect {
     "Password:" {

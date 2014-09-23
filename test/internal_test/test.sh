@@ -359,6 +359,7 @@ elif [ "$1" == "ssh" ]; then
 else
     # superuser required
     echo 'Usage: sudo ./test.sh latch [ all | pair | status | unpair ]'
-    echo '                      ssh   [ all | pam | pkey ]'
+    echo ''
+    echo 'version 1.0'
 fi
 
