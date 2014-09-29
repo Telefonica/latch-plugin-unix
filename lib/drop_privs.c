@@ -85,7 +85,7 @@ char *get_user_name(){
 
     int bufsize;
     if ((bufsize = sysconf(_SC_GETPW_R_SIZE_MAX)) == -1) {
-        return NULL;
+        bufsize = 1024;
     }
 
     char *buffer = malloc(bufsize);
