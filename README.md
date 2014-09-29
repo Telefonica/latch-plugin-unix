@@ -1,3 +1,6 @@
+> ###WARNING###
+>Please note that the explotation of the recent Shellshock vulnerability [https://shellshocker.net/](https://shellshocker.net/) allows potential attackers to bypass the Latch plugin in unpatched systems. Please update as soon as possible if you haven't done so yet.
+
 #LATCH INSTALATION GUIDE FOR UNIX
 
 
