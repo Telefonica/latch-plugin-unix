@@ -45,9 +45,3 @@ const char* getAccountId(const char* pUser, const char* pAccounts);
 const char* getConfig(int max_size, const char* pParameter, const char* pConfig);
 
 void send_syslog_alert(char *ident, const char *msg);
-
-char *get_user_name(void);
-const char *get_effective_user_name(void);
-
-int drop_privileges(void);
-

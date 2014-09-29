@@ -30,6 +30,7 @@
 #include "latch_unix.h"
 #include "../lib/latch.h"
 #include "../lib/util.h"
+#include "../lib/drop_privs.h"
 #include "../lib/charset.h"
 
 
@@ -57,6 +58,10 @@ static int latch_pair(const char *username, const char *accountsFile, char *pair
         return 1;
     }
 
+    if (drop_privileges(0)) {
+        printf("%s\n", DROP_PRIVS_ERROR_MSG);
+    }
+
     if (! validCode(pairingCode)) {
         fprintf(stderr, "%s\n", INVALID_TOKEN_FORMAT_MSG);
         return 1;
@@ -76,6 +81,11 @@ static int latch_pair(const char *username, const char *accountsFile, char *pair
         acc_id = malloc(ACCOUNT_ID_LENGTH + 1);
         strncpy(acc_id, pstr, ACCOUNT_ID_LENGTH);
         acc_id[ACCOUNT_ID_LENGTH] = '\0';
+
+        if (restore_privileges()) {
+            fprintf(stderr, "%s\n", RESTORE_PRIVS_ERROR_MSG);
+        }
+
         if (appendAccountId(username, acc_id, accountsFile) == -1) {
             fprintf(stderr, "%s %s\n", WRITE_ACC_FILE_ERROR_MSG, accountsFile);
             res = 1;
@@ -118,6 +128,9 @@ static int latch_unpair(const char *username, const char *accountsFile) {
 
     fprintf(stdout, UNPAIRING_SUCCESS_$USER_MSG, username);
     if (countAccountId(pAccountId, accountsFile) == 0) {
+        if (drop_privileges(1)) {
+            fprintf(stderr, "%s\n", DROP_PRIVS_ERROR_MSG);
+        }
         buffer = unpair(pAccountId);
         free(buffer);
     }
@@ -135,6 +148,10 @@ static int latch_status(const char *username, const char *accountsFile) {
     if (pAccountId == NULL) {
         fprintf(stderr, NOT_PAIRED_$USER_MSG, username);
         return 1;
+    }
+
+    if (drop_privileges(1)) {
+        printf("%s\n", DROP_PRIVS_ERROR_MSG);
     }
 
     fprintf(stdout, CHECK_STATUS_$USER_MSG, username);
@@ -183,12 +200,15 @@ static int latch_operation_status(const char *username, const char *accountsFile
     }
           
     pOperationId = getConfig(OPERATION_ID_LENGTH, operation, configFile);
-
     if(pOperationId == NULL || strcmp(pOperationId,"") == 0){
         fprintf(stderr, STATUS_NOT_OP_ERROR_$OP_$CFILE_MSG, operation, configFile);
         free((char*)pAccountId);
         free((char*)pOperationId);
         return 1;
+    }
+
+    if (drop_privileges(1)) {
+        printf("%s\n", DROP_PRIVS_ERROR_MSG);
     }
 
     fprintf(stdout, CHECK_STATUS_$USER_$OP_MSG, username, operation);

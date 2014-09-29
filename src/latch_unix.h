@@ -58,3 +58,6 @@
 #define UNKNOWN_OPT_CHAR_$OPT_MSG "Unknown option character `\\x%x'.\n"
 #define UNKNOWN_OPT_$OPT_MSG "Unknown option `-%c'.\n"
 #define REQUIRED_ARG_$OPT_MSG "Option -%c requires an argument.\n"
+
+#define DROP_PRIVS_ERROR_MSG "Couldn't drop privileges."
+#define RESTORE_PRIVS_ERROR_MSG "Couldn't restore privileges."

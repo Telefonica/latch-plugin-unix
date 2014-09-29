@@ -6,9 +6,11 @@ LIBS = @LIBS@ -lcurl -lcrypto -lssl -ldl
 bin_PROGRAMS = latch-shell
 latch_shell_SOURCES = 	latch_shell.c \
 			$(top_builddir)/lib/latch.c \
-			$(top_builddir)/lib/util.c \
 			$(top_builddir)/lib/latch.h \
-			$(top_builddir)/lib/util.h
+			$(top_builddir)/lib/util.c \
+			$(top_builddir)/lib/util.h \
+			$(top_builddir)/lib/drop_privs.c \
+			$(top_builddir)/lib/drop_privs.h
 
 install-exec-hook:
 	echo    "#### Setting SUID for latch-shell ####"

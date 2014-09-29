@@ -26,6 +26,7 @@
 #include "config.h"
 #include "../../../lib/latch.h"
 #include "../../../lib/util.h"
+ #include "../../../lib/drop_privs.h"
 
 
 
@@ -35,11 +36,6 @@
 
 
 static int exec_shell(){
-
-    if(drop_privileges() != 0){
-        return 1;
-    }
-
     if (getenv("SSH_ORIGINAL_COMMAND") != NULL) {
         return execl(getenv("SHELL"), getenv("SHELL"), "-c", getenv("SSH_ORIGINAL_COMMAND"), NULL);
     }else{
@@ -55,6 +51,10 @@ static int latch_shell_status(const char *username, const char *accountsFile, in
     pAccountId = getAccountId(username, accountsFile);
     if (pAccountId == NULL) {
         return 0;
+    }
+
+    if(drop_privileges(1)){
+        return 1;
     }
 
     buffer = status(pAccountId);
@@ -91,6 +91,10 @@ static int latch_shell_operation_status(const char *username, const char *accoun
     if(pOperationId == NULL || strcmp(pOperationId, "") == 0){
         free((char*)pAccountId);
         return res;
+    }
+
+    if(drop_privileges(1)){
+        return 1;
     }
 
     buffer = operationStatus(pAccountId, pOperationId);
