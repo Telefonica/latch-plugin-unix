@@ -44,22 +44,15 @@ void print_version() {
 }
 
 
-static int latch_pair(const char *username, const char *accountsFile, char *pairingCode) {
+static int latch_pair(const char *username, const char *pAccountId, const char *accountsFile, int aperms, char *pairingCode) {
     int res = 0;
-    const char *pAccountId = NULL;
     char *acc_id = NULL;
     char *buffer = NULL; 
     char *pstr = NULL;
 
-    pAccountId = getAccountId(username, accountsFile);
     if (pAccountId != NULL) {
         fprintf(stderr, ALREADY_PAIRED_$USER_MSG, username);
-        free((char*)pAccountId);
         return 1;
-    }
-
-    if (drop_privileges(0)) {
-        printf("%s\n", DROP_PRIVS_ERROR_MSG);
     }
 
     if (! validCode(pairingCode)) {
@@ -82,7 +75,7 @@ static int latch_pair(const char *username, const char *accountsFile, char *pair
         strncpy(acc_id, pstr, ACCOUNT_ID_LENGTH);
         acc_id[ACCOUNT_ID_LENGTH] = '\0';
 
-        if (restore_privileges()) {
+        if (aperms && restore_privileges()) {
             fprintf(stderr, "%s\n", RESTORE_PRIVS_ERROR_MSG);
         }
 
@@ -109,16 +102,19 @@ static int latch_pair(const char *username, const char *accountsFile, char *pair
     return res;
 }
 
-static int latch_unpair(const char *username, const char *accountsFile) {
+static int latch_unpair(const char *username, const char *pAccountId, const char *accountsFile, int aperms) {
     int res = 0;
     const char *pAccountId = NULL;
     char *buffer = NULL; 
 
-    pAccountId = getAccountId(username, accountsFile);
     if (pAccountId == NULL) {
         fprintf(stderr, NOT_PAIRED_$USER_MSG, username);
         return 1;
     }
+
+    if (aperms && restore_privileges()) {
+        printf("%s\n", RESTORE_PRIVS_ERROR_MSG);
+    } 
 
     if (deleteAccountId(username, accountsFile) == -1) {
         fprintf(stderr, "%s %s\n", WRITE_ACC_FILE_ERROR_MSG, accountsFile);
@@ -135,29 +131,20 @@ static int latch_unpair(const char *username, const char *accountsFile) {
         free(buffer);
     }
 
-    free((char*)pAccountId);
     return res;
 }
 
-static int latch_status(const char *username, const char *accountsFile) {
+static int latch_status(const char *username, const char *pAccountId) {
     int res = 0;
-    const char *pAccountId = NULL;
     char *buffer = NULL; 
 
-    pAccountId = getAccountId(username, accountsFile);
     if (pAccountId == NULL) {
         fprintf(stderr, NOT_PAIRED_$USER_MSG, username);
         return 1;
     }
 
-    if (drop_privileges(1)) {
-        printf("%s\n", DROP_PRIVS_ERROR_MSG);
-    }
-
     fprintf(stdout, CHECK_STATUS_$USER_MSG, username);
     buffer = status(pAccountId);
-
-    free((char*)pAccountId);
 
     if(buffer == NULL || strcmp(buffer,"") == 0) {
         fprintf(stderr, "%s\n", CONNECTION_SERVER_ERROR_MSG);
@@ -187,35 +174,17 @@ static int latch_status(const char *username, const char *accountsFile) {
     return res;
 }
 
-static int latch_operation_status(const char *username, const char *accountsFile, const char *configFile, const char *operation) {
+static int latch_operation_status(const char *username, const char *pAccountId, const char *pOperationId) {
     int res = 0;
-    const char *pAccountId = NULL;
-    const char *pOperationId = NULL;
     char *buffer = NULL; 
 
-    pAccountId = getAccountId(username, accountsFile);
     if (pAccountId == NULL) {
         fprintf(stderr, NOT_PAIRED_$USER_MSG, username);
         return 1;
     }
-          
-    pOperationId = getConfig(OPERATION_ID_LENGTH, operation, configFile);
-    if(pOperationId == NULL || strcmp(pOperationId,"") == 0){
-        fprintf(stderr, STATUS_NOT_OP_ERROR_$OP_$CFILE_MSG, operation, configFile);
-        free((char*)pAccountId);
-        free((char*)pOperationId);
-        return 1;
-    }
-
-    if (drop_privileges(1)) {
-        printf("%s\n", DROP_PRIVS_ERROR_MSG);
-    }
 
     fprintf(stdout, CHECK_STATUS_$USER_$OP_MSG, username, operation);
     buffer = operationStatus(pAccountId, pOperationId);
-
-    free((char*)pAccountId);
-    free((char*)pOperationId);
           
     if(buffer == NULL || strcmp(buffer,"") == 0) {
         fprintf(stderr, "%s\n", CONNECTION_SERVER_ERROR_MSG);
@@ -248,6 +217,8 @@ static int latch_operation_status(const char *username, const char *accountsFile
 
 int main(int argc, char **argv) {
 
+	int fperms = 0;
+	int aperms = 0;
     int hflag = 0;
     int vflag = 0;
     int uflag = 0;
@@ -258,11 +229,13 @@ int main(int argc, char **argv) {
     char *ovalue = NULL;
     int index = 0;
     int c;
+    const char *pAccountId = NULL;
     const char* pUsername = NULL;                
     const char *pSecretKey = NULL;
     const char *pAppId = NULL;
     const char *pHost = NULL;
-    const char *pTimeout = NULL;   
+    const char *pTimeout = NULL; 
+    const char *pOperationId = NULL;  
     int timeout = 2;
     int res = 0;
     FILE *f;
@@ -342,6 +315,7 @@ int main(int argc, char **argv) {
       
     if (avalue == NULL) {
         avalue = DEFAULT_LATCH_ACCOUNTS_FILE;
+        aperms = 1;
     } else if (access(avalue, W_OK|R_OK) != 0) {
         fprintf(stderr, ACCESS_RW_ERROR_$USER_$FILE_MSG, pUsername, avalue);
         return 1;
@@ -349,16 +323,27 @@ int main(int argc, char **argv) {
       
     if (fvalue == NULL) {
         fvalue = DEFAULT_LATCH_CONFIG_FILE;
+        fperms = 1;
     } else if (access(fvalue, R_OK) != 0) {
         fprintf(stderr, ACCESS_R_ERROR_$USER_$FILE_MSG, pUsername, fvalue);
         return 1;
     }
       
+    if (!fperms && drop_privileges(0)) {
+        printf("%s\n", DROP_PRIVS_ERROR_MSG);
+        return 1;
+    }
+
     pAppId = getConfig(APP_ID_LENGTH, "app_id", fvalue);
     pSecretKey = getConfig(SECRET_KEY_LENGTH, "secret_key", fvalue);
 
     if(pAppId == NULL || pSecretKey == NULL || strcmp(pAppId,"") == 0 || strcmp(pSecretKey,"") == 0){
         fprintf(stderr, READ_FILE_ERROR_$CFILE_MSG, fvalue);
+        return 1;
+    }
+
+    if(ovalue && pOperationId = getConfig(OPERATION_ID_LENGTH, ovalue, fvalue) == NULL) {
+        fprintf(stderr, STATUS_NOT_OP_ERROR_$OP_$CFILE_MSG, ovalue, fvalue);
         return 1;
     }
 
@@ -378,19 +363,48 @@ int main(int argc, char **argv) {
     init(pAppId, pSecretKey);
     setHost(pHost);    
     setTimeout(timeout);
-      
-    if (sflag) {
-        res = latch_status(pUsername, avalue);
-    } else if (ovalue) {
-        res = latch_operation_status(pUsername, avalue, fvalue, ovalue);
-    } else if (uflag) {
-        res = latch_unpair(pUsername, avalue);
-    } else if (pvalue) {
-        res = latch_pair(pUsername, avalue, pvalue);
+
+    if (!aperms && drop_privileges(0)) {
+        printf("%s\n", DROP_PRIVS_ERROR_MSG);
+        return 1;
     }
 
+    if (!fperms && aperms && restore_privileges()) {
+        printf("%s\n", RESTORE_PRIVS_ERROR_MSG);
+    }    
+
+    pAccountId = getAccountId(username, avalue);
+    
+    if (sflag) {
+    	if (drop_privileges(1)) {
+        	printf("%s\n", DROP_PRIVS_ERROR_MSG);
+        	return 1;
+    	}
+        res = latch_status(pUsername, pAccountId);
+    } else if (ovalue) {
+    	if (drop_privileges(1)) {
+        	printf("%s\n", DROP_PRIVS_ERROR_MSG);
+        	return 1;
+    	}
+        res = latch_operation_status(pUsername, pAccountId, pOperationId);
+    } else if (uflag) {
+    	if (drop_privileges(0)) {
+        	printf("%s\n", DROP_PRIVS_ERROR_MSG);
+        	return 1;
+    	}
+        res = latch_unpair(pUsername, pAccountId, avalue, aperms);
+    } else if (pvalue) {
+    	if (drop_privileges(0)) {
+        	printf("%s\n", DROP_PRIVS_ERROR_MSG);
+        	return 1;
+    	}
+        res = latch_pair(pUsername, pAccountId, avalue, aperms, pvalue);
+    }
+
+    free((char*)pAccountId);
     free((char*)pAppId); 
     free((char*)pSecretKey);
     free((char*)pHost);
+    free((char*)pOperationId);
     return res;
 }
