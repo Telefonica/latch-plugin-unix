@@ -1,0 +1,6 @@
+* latch_1.1.
+- Fix error when sysconf call fails.
+- Use minimum privileges policy.
+
+* latch_1.0.
+Initial version.

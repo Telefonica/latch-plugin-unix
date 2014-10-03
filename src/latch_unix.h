@@ -19,7 +19,7 @@
                     "Report latch bugs to latch-help@support.elevenpaths.com\n"\
                     "For more information, <https://latch.elevenpaths.com/>\n"\
 
-#define LATCH_VERSION "latch_1.0"
+#define LATCH_VERSION "latch_1.1"
 
 #define LATCH_ERROR_102_MSG "Invalid Application ID or Secret Key"
 #define LATCH_ERROR_109_MSG "Something went wrong. Review your date & time settings."
