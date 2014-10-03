@@ -358,45 +358,34 @@ int main(int argc, char **argv) {
         timeout = 2;
     }
     free((char*)pTimeout);
-          
-    init(pAppId, pSecretKey);
-    setHost(pHost);    
-    setTimeout(timeout);
 
     if (!aperms && drop_privileges(0)) {
         printf("%s\n", DROP_PRIVS_ERROR_MSG);
         return 1;
-    }
+    } 
 
-    if (!fperms && aperms && restore_privileges()) {
+    if (aperms && !fperms && restore_privileges()) {
         printf("%s\n", RESTORE_PRIVS_ERROR_MSG);
     }    
 
     pAccountId = getAccountId(pUsername, avalue);
-    
+ 
+	if (drop_privileges(0)) {
+    	printf("%s\n", DROP_PRIVS_ERROR_MSG);
+    	return 1;
+	}
+
+    init(pAppId, pSecretKey);
+    setHost(pHost);    
+    setTimeout(timeout);
+
     if (sflag) {
-    	if (drop_privileges(1)) {
-        	printf("%s\n", DROP_PRIVS_ERROR_MSG);
-        	return 1;
-    	}
         res = latch_status(pUsername, pAccountId);
     } else if (ovalue) {
-    	if (drop_privileges(1)) {
-        	printf("%s\n", DROP_PRIVS_ERROR_MSG);
-        	return 1;
-    	}
         res = latch_operation_status(pUsername, pAccountId, pOperationId);
     } else if (uflag) {
-    	if (drop_privileges(0)) {
-        	printf("%s\n", DROP_PRIVS_ERROR_MSG);
-        	return 1;
-    	}
         res = latch_unpair(pUsername, pAccountId, avalue, aperms);
     } else if (pvalue) {
-    	if (drop_privileges(0)) {
-        	printf("%s\n", DROP_PRIVS_ERROR_MSG);
-        	return 1;
-    	}
         res = latch_pair(pUsername, pAccountId, avalue, aperms, pvalue);
     }
 
