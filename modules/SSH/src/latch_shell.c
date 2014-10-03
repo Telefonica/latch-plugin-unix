@@ -75,12 +75,6 @@ static int latch_shell_operation_status(const char *pAccountId, const char *pOpe
     if (pAccountId == NULL) {
         return 0;
     }
-          
-    pOperationId = getConfig(OPERATION_ID_LENGTH, operation, configFile);
-    if(pOperationId == NULL || strcmp(pOperationId, "") == 0){
-        free((char*)pAccountId);
-        return res;
-    }
 
     buffer = operationStatus(pAccountId, pOperationId);
         
