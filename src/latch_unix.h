@@ -46,7 +46,7 @@
 #define NOT_PAIRED_$USER_MSG "The user %s is not paired with latch\n"
 
 #define CHECK_STATUS_$USER_MSG "Checking status for user %s...\n"
-#define CHECK_STATUS_$USER_$OP_MSG "Checking status for user %s in operation %s...\n"
+#define CHECK_STATUS_$USER_$OP_MSG "Checking status for user %s in operation...\n"
 
 #define GET_USERNAME_ERROR_MSG "Unknown user"
 
