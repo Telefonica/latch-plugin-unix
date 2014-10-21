@@ -125,7 +125,8 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 pam_latch_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
-am_pam_latch_la_OBJECTS = pam_latch.lo ../lib/latch.lo ../lib/util.lo
+am_pam_latch_la_OBJECTS = pam_latch.lo ../lib/latch.lo ../lib/util.lo \
+	../lib/drop_privs.lo
 pam_latch_la_OBJECTS = $(am_pam_latch_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -317,7 +318,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = no-dependencies
 lib_LTLIBRARIES = pam_latch.la
-pam_latch_la_SOURCES = pam_latch.c ../lib/latch.c ../lib/latch.h ../lib/util.c ../lib/util.h
+pam_latch_la_SOURCES = pam_latch.c ../lib/latch.c ../lib/latch.h ../lib/util.c ../lib/util.h ../lib/drop_privs.c ../lib/drop_privs.h
 pam_latch_la_LDFLAGS = -module -avoid-version
 test_SOURCES = test.c
 pam_latch_LIBS = @LIBS@ -lpam -lcurl -lcrypto -lssl -ldl
@@ -396,6 +397,7 @@ clean-libLTLIBRARIES:
 	@: > ../lib/$(am__dirstamp)
 ../lib/latch.lo: ../lib/$(am__dirstamp)
 ../lib/util.lo: ../lib/$(am__dirstamp)
+../lib/drop_privs.lo: ../lib/$(am__dirstamp)
 
 pam_latch.la: $(pam_latch_la_OBJECTS) $(pam_latch_la_DEPENDENCIES) $(EXTRA_pam_latch_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(pam_latch_la_LINK) -rpath $(libdir) $(pam_latch_la_OBJECTS) $(pam_latch_la_LIBADD) $(LIBS)

@@ -7,7 +7,7 @@ if OSLINUX
 endif
 
 lib_LTLIBRARIES = pam_latch.la
-pam_latch_la_SOURCES = pam_latch.c ../lib/latch.c ../lib/latch.h ../lib/util.c ../lib/util.h
+pam_latch_la_SOURCES = pam_latch.c ../lib/latch.c ../lib/latch.h ../lib/util.c ../lib/util.h ../lib/drop_privs.c ../lib/drop_privs.h
 pam_latch_la_LDFLAGS = -module -avoid-version
 bin_PROGRAMS = test
 test_SOURCES = test.c

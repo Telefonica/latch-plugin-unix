@@ -96,7 +96,8 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__dirstamp = $(am__leading_dot)dirstamp
 am_latch_OBJECTS = latch_unix.$(OBJEXT) ../lib/latch.$(OBJEXT) \
-	../lib/util.$(OBJEXT) ../lib/charset.$(OBJEXT)
+	../lib/util.$(OBJEXT) ../lib/drop_privs.$(OBJEXT) \
+	../lib/charset.$(OBJEXT)
 latch_OBJECTS = $(am_latch_OBJECTS)
 latch_LDADD = $(LDADD)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -281,7 +282,9 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = no-dependencies
-latch_SOURCES = latch_unix.c latch_unix.h ../lib/latch.c ../lib/latch.h ../lib/util.c ../lib/util.h ../lib/charset.c ../lib/charset.h
+latch_SOURCES = latch_unix.c latch_unix.h ../lib/latch.c ../lib/latch.h ../lib/util.c ../lib/util.h \
+                ../lib/drop_privs.c ../lib/drop_privs.h ../lib/charset.c ../lib/charset.h
+
 all: all-am
 
 .SUFFIXES:
@@ -370,6 +373,7 @@ clean-binPROGRAMS:
 	@: > ../lib/$(am__dirstamp)
 ../lib/latch.$(OBJEXT): ../lib/$(am__dirstamp)
 ../lib/util.$(OBJEXT): ../lib/$(am__dirstamp)
+../lib/drop_privs.$(OBJEXT): ../lib/$(am__dirstamp)
 ../lib/charset.$(OBJEXT): ../lib/$(am__dirstamp)
 
 latch$(EXEEXT): $(latch_OBJECTS) $(latch_DEPENDENCIES) $(EXTRA_latch_DEPENDENCIES) 

@@ -39,6 +39,7 @@
 
 #include "../lib/latch.h"
 #include "../lib/util.h"
+ #include "../lib/drop_privs.h"
 
 
 
@@ -224,7 +225,11 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t* pamh, int flags, int argc, cons
         timeout = 2;
     }
     free((char*)pTimeout); 
-    
+ 
+    if (drop_privileges(0)) {
+        send_syslog_alert("PAM", "Latch-auth-pam error: Couldn't drop privileges");
+    }
+
     init(pAppId, pSecretKey);
     setHost(pHost);
     setTimeout(timeout);
@@ -240,6 +245,10 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t* pamh, int flags, int argc, cons
     free((char*)pOperationId);
     free((char*)pHost);
  
+    if (restore_privileges()) {
+        send_syslog_alert("PAM", "Latch-auth-pam error: Couldn't restore privileges");
+    }
+
     if(buffer == NULL || strcmp(buffer,"") == 0){
         free(buffer);
         return default_option;

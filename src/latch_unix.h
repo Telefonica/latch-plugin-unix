@@ -19,7 +19,7 @@
                     "Report latch bugs to latch-help@support.elevenpaths.com\n"\
                     "For more information, <https://latch.elevenpaths.com/>\n"\
 
-#define LATCH_VERSION "latch_1.0"
+#define LATCH_VERSION "latch_1.1"
 
 #define LATCH_ERROR_102_MSG "Invalid Application ID or Secret Key"
 #define LATCH_ERROR_109_MSG "Something went wrong. Review your date & time settings."
@@ -46,7 +46,7 @@
 #define NOT_PAIRED_$USER_MSG "The user %s is not paired with latch\n"
 
 #define CHECK_STATUS_$USER_MSG "Checking status for user %s...\n"
-#define CHECK_STATUS_$USER_$OP_MSG "Checking status for user %s in operation %s...\n"
+#define CHECK_STATUS_$USER_$OP_MSG "Checking status for user %s in operation...\n"
 
 #define GET_USERNAME_ERROR_MSG "Unknown user"
 
@@ -58,3 +58,6 @@
 #define UNKNOWN_OPT_CHAR_$OPT_MSG "Unknown option character `\\x%x'.\n"
 #define UNKNOWN_OPT_$OPT_MSG "Unknown option `-%c'.\n"
 #define REQUIRED_ARG_$OPT_MSG "Option -%c requires an argument.\n"
+
+#define DROP_PRIVS_ERROR_MSG "Couldn't drop privileges."
+#define RESTORE_PRIVS_ERROR_MSG "Couldn't restore privileges."

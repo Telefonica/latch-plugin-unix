@@ -97,7 +97,8 @@ PROGRAMS = $(bin_PROGRAMS)
 am__dirstamp = $(am__leading_dot)dirstamp
 am_latch_shell_OBJECTS = latch_shell.$(OBJEXT) \
 	$(top_builddir)/lib/latch.$(OBJEXT) \
-	$(top_builddir)/lib/util.$(OBJEXT)
+	$(top_builddir)/lib/util.$(OBJEXT) \
+	$(top_builddir)/lib/drop_privs.$(OBJEXT)
 latch_shell_OBJECTS = $(am_latch_shell_OBJECTS)
 latch_shell_LDADD = $(LDADD)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -284,9 +285,11 @@ top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = no-dependencies
 latch_shell_SOURCES = latch_shell.c \
 			$(top_builddir)/lib/latch.c \
-			$(top_builddir)/lib/util.c \
 			$(top_builddir)/lib/latch.h \
-			$(top_builddir)/lib/util.h
+			$(top_builddir)/lib/util.c \
+			$(top_builddir)/lib/util.h \
+			$(top_builddir)/lib/drop_privs.c \
+			$(top_builddir)/lib/drop_privs.h
 
 all: all-am
 
@@ -377,6 +380,8 @@ $(top_builddir)/lib/$(am__dirstamp):
 $(top_builddir)/lib/latch.$(OBJEXT):  \
 	$(top_builddir)/lib/$(am__dirstamp)
 $(top_builddir)/lib/util.$(OBJEXT):  \
+	$(top_builddir)/lib/$(am__dirstamp)
+$(top_builddir)/lib/drop_privs.$(OBJEXT):  \
 	$(top_builddir)/lib/$(am__dirstamp)
 
 latch-shell$(EXEEXT): $(latch_shell_OBJECTS) $(latch_shell_DEPENDENCIES) $(EXTRA_latch_shell_DEPENDENCIES) 
