@@ -24,9 +24,10 @@
 #include <stdlib.h>
 #include <errno.h>
 #include "config.h"
-#include "../../../lib/latch.h"
-#include "../../../lib/util.h"
- #include "../../../lib/drop_privs.h"
+
+#include "latch.h"
+#include "util.h"
+#include "drop_privs.h"
 
 
 

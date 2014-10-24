@@ -25,14 +25,12 @@
 #include <unistd.h>
 #include <pwd.h>
 #include <errno.h>
-#include "config.h"
 
 #include "latch_unix.h"
-#include "../lib/latch.h"
-#include "../lib/util.h"
-#include "../lib/drop_privs.h"
-#include "../lib/charset.h"
-
+#include "latch.h"
+#include "util.h"
+#include "drop_privs.h"
+#include "charset.h"
 
 
 void print_usage() {
@@ -40,7 +38,7 @@ void print_usage() {
 }
 
 void print_version() {
-    printf("%s\n", LATCH_VERSION);
+    printf("%s\n", PACKAGE_STRING);
 }
 
 

@@ -1,3 +1,5 @@
+#include "config.h"
+
 #define LATCH_USAGE "Usage: latch -p PAIRING_CODE [options]\n"\
                     "       latch -s [options]\n"\
                     "       latch -o OPERATION [options]\n"\
@@ -12,14 +14,13 @@
                     "\n"\
                     "Options:\n"\
                     "-f CONFIG_FILE,          get configuration parameters from CONFIG_FILE;\n"\
-                    "                         by default use /etc/latch/latch.conf\n"\
+                    "                         by default use " LATCH_CONF_DIR "/latch.conf\n"\
                     "-a ACCOUNTS_FILE,        put and get accounts information from ACCOUNTS_FILE;\n"\
-                    "                         by default use /etc/latch/latch.accounts\n"\
+                    "                         by default use " LATCH_CONF_DIR "/latch.accounts\n"\
                     "\n"\
-                    "Report latch bugs to latch-help@support.elevenpaths.com\n"\
-                    "For more information, <https://latch.elevenpaths.com/>\n"\
+                    "Report latch bugs to " PACKAGE_BUGREPORT "\n"\
+                    "For more information, <https://latch.elevenpaths.com/>\n"
 
-#define LATCH_VERSION "latch_1.1"
 
 #define LATCH_ERROR_102_MSG "Invalid Application ID or Secret Key"
 #define LATCH_ERROR_109_MSG "Something went wrong. Review your date & time settings."
