@@ -119,7 +119,7 @@ function uninstall_ ()
 }
 
 
-elif [ "$1" == 'uninstall' ] ; then
+if [ "$1" == 'uninstall' ] ; then
   echo 'Uninstalling latch ...'
   uninstall_
 elif [ "$1" != '' ] ; then
