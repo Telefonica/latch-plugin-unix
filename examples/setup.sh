@@ -7,7 +7,7 @@ function pre_install_ ()
 {
   # install dependencies
   sudo apt-get update
-  sudo apt-get install libpam0g-dev, libcurl4-openssl-dev, libssl-dev
+  sudo apt-get install libpam0g-dev libcurl4-openssl-dev libssl-dev
   sudo apt-get install gcc make
 
 }
