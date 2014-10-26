@@ -5,11 +5,15 @@
 
 function pre_install_ ()
 {
-  # install dependencies
-  sudo apt-get update
-  sudo apt-get install -f libpam0g-dev libcurl4-openssl-dev libssl-dev
-  sudo apt-get install gcc make
-
+  if [ -f "`which apt-get`" ] ; then
+    sudo apt-get -y update
+    sudo apt-get -y install libpam0g-dev libcurl4-openssl-dev libssl-dev
+    sudo apt-get -y install gcc make
+  elif [ -f "`which yum`" ] ; then
+    sudo yum -y update
+    sudo yum -y install pam-devel libcurl-devel openssl-devel
+    sudo yum -y install gcc make
+  fi
 }
 
 function install_ ()
@@ -81,7 +85,11 @@ function install_ ()
 
   # restart ssh
   echo 'Restarting ssh server...'
-  sudo service ssh restart
+  if [[ "$1" == "debian" || "$1" == "ubuntu" ]] ; then
+    sudo service ssh restart
+  elif [[ "$1" == 'fedora' || "$1" == 'centos' ]] ; then
+    sudo service sshd restart
+  fi
 }
 
 function uninstall_ ()
@@ -115,7 +123,11 @@ function uninstall_ ()
 
   # restart ssh
   echo 'Restarting ssh server...'
-  sudo service ssh restart
+  if [[ "$1" == "debian" || "$1" == "ubuntu" ]] ; then
+    sudo service ssh restart
+  elif [[ "$1" == 'fedora' || "$1" == 'centos' ]] ; then
+    sudo service sshd restart
+  fi
 }
 
 
