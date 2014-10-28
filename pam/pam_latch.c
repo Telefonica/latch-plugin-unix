@@ -39,9 +39,9 @@
 
 #include "../lib/latch.h"
 #include "../lib/util.h"
- #include "../lib/drop_privs.h"
+#include "../lib/drop_privs.h"
 
-
+#define MAXBUFSIZE 512
 
 
 /* expected hook */
@@ -77,7 +77,7 @@ char *get_response(pam_handle_t *pamh, const char *prompt, int verbose) {
     const struct pam_message *msgp;
     struct pam_response *resp;
     char *response;
-    char buffer[512];
+    char buffer[MAXBUFSIZE];
 
     retval = pam_get_item(pamh, PAM_CONV, (const void**) &conv);
     if (retval != PAM_SUCCESS) {
@@ -91,7 +91,7 @@ char *get_response(pam_handle_t *pamh, const char *prompt, int verbose) {
         msg.msg_style = PAM_PROMPT_ECHO_OFF;
 
     if (prompt) {
-        sprintf(buffer, "%s: ", prompt);
+        snprintf(buffer, MAXBUFSIZE, "%s: ", prompt);
     } else {
         strcpy(buffer, "Password: ");
     }
