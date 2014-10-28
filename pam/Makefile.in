@@ -80,7 +80,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 @OSLINUX_TRUE@am__append_1 = -lpam_misc
-bin_PROGRAMS = test$(EXEEXT)
+noinst_PROGRAMS = test_pam_latch$(EXEEXT)
 subdir = pam
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -121,11 +121,12 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)"
+am__installdirs = "$(DESTDIR)$(libdir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 pam_latch_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
-am_pam_latch_la_OBJECTS = pam_latch.lo ../lib/latch.lo ../lib/util.lo
+am_pam_latch_la_OBJECTS = pam_latch.lo $(top_builddir)/lib/latch.lo \
+	$(top_builddir)/lib/util.lo $(top_builddir)/lib/drop_privs.lo
 pam_latch_la_OBJECTS = $(am_pam_latch_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -134,10 +135,10 @@ am__v_lt_1 =
 pam_latch_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(pam_latch_la_LDFLAGS) $(LDFLAGS) -o $@
-PROGRAMS = $(bin_PROGRAMS)
-am_test_OBJECTS = test.$(OBJEXT)
-test_OBJECTS = $(am_test_OBJECTS)
-test_LDADD = $(LDADD)
+PROGRAMS = $(noinst_PROGRAMS)
+am_test_pam_latch_OBJECTS = test.$(OBJEXT)
+test_pam_latch_OBJECTS = $(am_test_pam_latch_OBJECTS)
+test_pam_latch_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -171,8 +172,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(pam_latch_la_SOURCES) $(test_SOURCES)
-DIST_SOURCES = $(pam_latch_la_SOURCES) $(test_SOURCES)
+SOURCES = $(pam_latch_la_SOURCES) $(test_pam_latch_SOURCES)
+DIST_SOURCES = $(pam_latch_la_SOURCES) $(test_pam_latch_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -316,12 +317,15 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = no-dependencies
+AM_CPPFLAGS = -I$(top_srcdir)/lib
 lib_LTLIBRARIES = pam_latch.la
-pam_latch_la_SOURCES = pam_latch.c ../lib/latch.c ../lib/latch.h ../lib/util.c ../lib/util.h
+pam_latch_la_SOURCES = pam_latch.c $(top_builddir)/lib/latch.c $(top_builddir)/lib/latch.h $(top_builddir)/lib/util.c \
+	$(top_builddir)/lib/util.h $(top_builddir)/lib/drop_privs.c $(top_builddir)/lib/drop_privs.h
+
 pam_latch_la_LDFLAGS = -module -avoid-version
-test_SOURCES = test.c
+test_pam_latch_SOURCES = test.c
 pam_latch_LIBS = @LIBS@ -lpam -lcurl -lcrypto -lssl -ldl
-test_LIBS = @LIBS@ @linux_test_LIBS@ -lpam
+test_pam_latch_LIBS = @LIBS@ @linux_test_LIBS@ -lpam
 all: all-am
 
 .SUFFIXES:
@@ -391,57 +395,19 @@ clean-libLTLIBRARIES:
 	  echo rm -f $${locs}; \
 	  rm -f $${locs}; \
 	}
-../lib/$(am__dirstamp):
-	@$(MKDIR_P) ../lib
-	@: > ../lib/$(am__dirstamp)
-../lib/latch.lo: ../lib/$(am__dirstamp)
-../lib/util.lo: ../lib/$(am__dirstamp)
+$(top_builddir)/lib/$(am__dirstamp):
+	@$(MKDIR_P) $(top_builddir)/lib
+	@: > $(top_builddir)/lib/$(am__dirstamp)
+$(top_builddir)/lib/latch.lo: $(top_builddir)/lib/$(am__dirstamp)
+$(top_builddir)/lib/util.lo: $(top_builddir)/lib/$(am__dirstamp)
+$(top_builddir)/lib/drop_privs.lo:  \
+	$(top_builddir)/lib/$(am__dirstamp)
 
 pam_latch.la: $(pam_latch_la_OBJECTS) $(pam_latch_la_DEPENDENCIES) $(EXTRA_pam_latch_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(pam_latch_la_LINK) -rpath $(libdir) $(pam_latch_la_OBJECTS) $(pam_latch_la_LIBADD) $(LIBS)
-install-binPROGRAMS: $(bin_PROGRAMS)
-	@$(NORMAL_INSTALL)
-	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
-	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(bindir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(bindir)" || exit 1; \
-	fi; \
-	for p in $$list; do echo "$$p $$p"; done | \
-	sed 's/$(EXEEXT)$$//' | \
-	while read p p1; do if test -f $$p \
-	 || test -f $$p1 \
-	  ; then echo "$$p"; echo "$$p"; else :; fi; \
-	done | \
-	sed -e 'p;s,.*/,,;n;h' \
-	    -e 's|.*|.|' \
-	    -e 'p;x;s,.*/,,;s/$(EXEEXT)$$//;$(transform);s/$$/$(EXEEXT)/' | \
-	sed 'N;N;N;s,\n, ,g' | \
-	$(AWK) 'BEGIN { files["."] = ""; dirs["."] = 1 } \
-	  { d=$$3; if (dirs[d] != 1) { print "d", d; dirs[d] = 1 } \
-	    if ($$2 == $$4) files[d] = files[d] " " $$1; \
-	    else { print "f", $$3 "/" $$4, $$1; } } \
-	  END { for (d in files) print "f", d, files[d] }' | \
-	while read type dir files; do \
-	    if test "$$dir" = .; then dir=; else dir=/$$dir; fi; \
-	    test -z "$$files" || { \
-	    echo " $(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL_PROGRAM) $$files '$(DESTDIR)$(bindir)$$dir'"; \
-	    $(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL_PROGRAM) $$files "$(DESTDIR)$(bindir)$$dir" || exit $$?; \
-	    } \
-	; done
 
-uninstall-binPROGRAMS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
-	files=`for p in $$list; do echo "$$p"; done | \
-	  sed -e 'h;s,^.*/,,;s/$(EXEEXT)$$//;$(transform)' \
-	      -e 's/$$/$(EXEEXT)/' \
-	`; \
-	test -n "$$list" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(bindir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(bindir)" && rm -f $$files
-
-clean-binPROGRAMS:
-	@list='$(bin_PROGRAMS)'; test -n "$$list" || exit 0; \
+clean-noinstPROGRAMS:
+	@list='$(noinst_PROGRAMS)'; test -n "$$list" || exit 0; \
 	echo " rm -f" $$list; \
 	rm -f $$list || exit $$?; \
 	test -n "$(EXEEXT)" || exit 0; \
@@ -449,14 +415,14 @@ clean-binPROGRAMS:
 	echo " rm -f" $$list; \
 	rm -f $$list
 
-test$(EXEEXT): $(test_OBJECTS) $(test_DEPENDENCIES) $(EXTRA_test_DEPENDENCIES) 
-	@rm -f test$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(test_OBJECTS) $(test_LDADD) $(LIBS)
+test_pam_latch$(EXEEXT): $(test_pam_latch_OBJECTS) $(test_pam_latch_DEPENDENCIES) $(EXTRA_test_pam_latch_DEPENDENCIES) 
+	@rm -f test_pam_latch$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(test_pam_latch_OBJECTS) $(test_pam_latch_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
-	-rm -f ../lib/*.$(OBJEXT)
-	-rm -f ../lib/*.lo
+	-rm -f $(top_builddir)/lib/*.$(OBJEXT)
+	-rm -f $(top_builddir)/lib/*.lo
 
 distclean-compile:
 	-rm -f *.tab.c
@@ -474,8 +440,8 @@ mostlyclean-libtool:
 	-rm -f *.lo
 
 clean-libtool:
+	-rm -rf $(top_builddir)/lib/.libs $(top_builddir)/lib/_libs
 	-rm -rf .libs _libs
-	-rm -rf ../lib/.libs ../lib/_libs
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -562,10 +528,8 @@ distdir: $(DISTFILES)
 check-am: all-am
 check: check-am
 all-am: Makefile $(LTLIBRARIES) $(PROGRAMS)
-install-binPROGRAMS: install-libLTLIBRARIES
-
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)"; do \
+	for dir in "$(DESTDIR)$(libdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -594,15 +558,15 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
-	-rm -f ../lib/$(am__dirstamp)
+	-test -z "$(top_builddir)/lib/$(am__dirstamp)" || rm -f $(top_builddir)/lib/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-binPROGRAMS clean-generic clean-libLTLIBRARIES \
-	clean-libtool mostlyclean-am
+clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
+	clean-noinstPROGRAMS mostlyclean-am
 
 distclean: distclean-am
 	-rm -f Makefile
@@ -627,7 +591,7 @@ install-dvi: install-dvi-am
 
 install-dvi-am:
 
-install-exec-am: install-binPROGRAMS install-libLTLIBRARIES
+install-exec-am: install-libLTLIBRARIES
 
 install-html: install-html-am
 
@@ -666,25 +630,24 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-binPROGRAMS uninstall-libLTLIBRARIES
+uninstall-am: uninstall-libLTLIBRARIES
 
 .MAKE: install-am install-strip
 
-.PHONY: CTAGS GTAGS TAGS all all-am check check-am clean \
-	clean-binPROGRAMS clean-generic clean-libLTLIBRARIES \
-	clean-libtool cscopelist-am ctags ctags-am distclean \
-	distclean-compile distclean-generic distclean-libtool \
-	distclean-tags distdir dvi dvi-am html html-am info info-am \
-	install install-am install-binPROGRAMS install-data \
-	install-data-am install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am install-info \
-	install-info-am install-libLTLIBRARIES install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags tags-am uninstall uninstall-am uninstall-binPROGRAMS \
-	uninstall-libLTLIBRARIES
+.PHONY: CTAGS GTAGS TAGS all all-am check check-am clean clean-generic \
+	clean-libLTLIBRARIES clean-libtool clean-noinstPROGRAMS \
+	cscopelist-am ctags ctags-am distclean distclean-compile \
+	distclean-generic distclean-libtool distclean-tags distdir dvi \
+	dvi-am html html-am info info-am install install-am \
+	install-data install-data-am install-dvi install-dvi-am \
+	install-exec install-exec-am install-html install-html-am \
+	install-info install-info-am install-libLTLIBRARIES \
+	install-man install-pdf install-pdf-am install-ps \
+	install-ps-am install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool pdf pdf-am ps ps-am tags tags-am uninstall \
+	uninstall-am uninstall-libLTLIBRARIES
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

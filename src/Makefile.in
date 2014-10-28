@@ -95,8 +95,11 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__dirstamp = $(am__leading_dot)dirstamp
-am_latch_OBJECTS = latch_unix.$(OBJEXT) ../lib/latch.$(OBJEXT) \
-	../lib/util.$(OBJEXT) ../lib/charset.$(OBJEXT)
+am_latch_OBJECTS = latch_unix.$(OBJEXT) \
+	$(top_builddir)/lib/latch.$(OBJEXT) \
+	$(top_builddir)/lib/util.$(OBJEXT) \
+	$(top_builddir)/lib/drop_privs.$(OBJEXT) \
+	$(top_builddir)/lib/charset.$(OBJEXT)
 latch_OBJECTS = $(am_latch_OBJECTS)
 latch_LDADD = $(LDADD)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -281,7 +284,11 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = no-dependencies
-latch_SOURCES = latch_unix.c latch_unix.h ../lib/latch.c ../lib/latch.h ../lib/util.c ../lib/util.h ../lib/charset.c ../lib/charset.h
+AM_CPPFLAGS = -I$(top_srcdir)/lib
+latch_SOURCES = latch_unix.c latch_unix.h $(top_builddir)/lib/latch.c $(top_builddir)/lib/latch.h $(top_builddir)/lib/util.c \
+	$(top_builddir)/lib/util.h $(top_builddir)/lib/drop_privs.c $(top_builddir)/lib/drop_privs.h $(top_builddir)/lib/charset.c \
+	$(top_builddir)/lib/charset.h
+
 all: all-am
 
 .SUFFIXES:
@@ -365,12 +372,17 @@ clean-binPROGRAMS:
 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
 	echo " rm -f" $$list; \
 	rm -f $$list
-../lib/$(am__dirstamp):
-	@$(MKDIR_P) ../lib
-	@: > ../lib/$(am__dirstamp)
-../lib/latch.$(OBJEXT): ../lib/$(am__dirstamp)
-../lib/util.$(OBJEXT): ../lib/$(am__dirstamp)
-../lib/charset.$(OBJEXT): ../lib/$(am__dirstamp)
+$(top_builddir)/lib/$(am__dirstamp):
+	@$(MKDIR_P) $(top_builddir)/lib
+	@: > $(top_builddir)/lib/$(am__dirstamp)
+$(top_builddir)/lib/latch.$(OBJEXT):  \
+	$(top_builddir)/lib/$(am__dirstamp)
+$(top_builddir)/lib/util.$(OBJEXT):  \
+	$(top_builddir)/lib/$(am__dirstamp)
+$(top_builddir)/lib/drop_privs.$(OBJEXT):  \
+	$(top_builddir)/lib/$(am__dirstamp)
+$(top_builddir)/lib/charset.$(OBJEXT):  \
+	$(top_builddir)/lib/$(am__dirstamp)
 
 latch$(EXEEXT): $(latch_OBJECTS) $(latch_DEPENDENCIES) $(EXTRA_latch_DEPENDENCIES) 
 	@rm -f latch$(EXEEXT)
@@ -378,7 +390,7 @@ latch$(EXEEXT): $(latch_OBJECTS) $(latch_DEPENDENCIES) $(EXTRA_latch_DEPENDENCIE
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
-	-rm -f ../lib/*.$(OBJEXT)
+	-rm -f $(top_builddir)/lib/*.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
@@ -513,7 +525,7 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
-	-rm -f ../lib/$(am__dirstamp)
+	-test -z "$(top_builddir)/lib/$(am__dirstamp)" || rm -f $(top_builddir)/lib/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"

@@ -3,49 +3,50 @@
 # tested on (OS X 10.9.3)
 
 
-
+function pre_install_ ()
+{
+  if [ -f "`which apt-get`" ] ; then
+    sudo apt-get -y update
+    sudo apt-get -y install libpam0g-dev libcurl4-openssl-dev libssl-dev
+    sudo apt-get -y install gcc make
+  elif [ -f "`which yum`" ] ; then
+    sudo yum -y update
+    sudo yum -y install pam-devel libcurl-devel openssl-devel
+    sudo yum -y install gcc make
+  fi
+}
 
 function install_ ()
 {
-  local SYS=$1
-
   # change to root directory
-  cd ../..
+  cd ..
 
   # configure & make & install
-  ./configure && make && sudo make install
+  ./configure prefix=/usr sysconfdir=/etc && make && sudo make install
 
   # move pam_latch.so to PAM directory
-  echo 'Moving pam_latch.so to PAM directory...' 
-  if test -d /lib/*/security/ ; then
-    PAM_DIR=/lib/*/security/
-  elif test -d /lib64/security/ ; then
-    PAM_DIR=/lib64/security/
-  elif test -d /lib/security/ ; then
-    PAM_DIR=/lib/security/
+  echo 'Moving pam_latch.so to PAM directory ...' 
+  if test -d /lib*/*/security/ ; then
+    PAM_DIR=/lib*/*/security/
+  elif test -d /lib*/security/ ; then
+    PAM_DIR=/lib*/security/
+  elif test -d /usr/lib/security/ ; then
+    PAM_DIR=/usr/lib/security/
   else
     PAM_DIR=/usr/lib/pam/
   fi
 
-  if test -d $PAM_DIR && test -f /usr/local/lib/pam_latch.so ; then
+  if test -d $PAM_DIR && test -f /usr/lib/pam_latch.so ; then
     echo 'PAM directory: '$PAM_DIR
-    sudo mv /usr/local/lib/pam_latch.so $PAM_DIR
+    sudo mv /usr/lib/pam_latch.so $PAM_DIR
   else
-    echo 'Move /usr/local/lib/pam_latch.so manually to PAM dir'
+    echo 'Move /usr/lib/pam_latch.so manually to PAM dir'
     exit 1
   fi
 
-  # move binary files to /usr/bin/
-  echo 'Moving binaries to /usr/bin/ ...' 
-  sudo mv /usr/local/bin/latch /usr/local/bin/latch-shell /usr/bin/
-
-  # update permissions
-  echo 'Updating permissions...' 
-  sudo chmod 4755 /usr/bin/latch /usr/bin/latch-shell
-
   # change to centos directory
-  echo 'Setting up '$SYS'...'
-  cd examples/$SYS/
+  echo "Setting up $1 ..."
+  cd examples/$1/
 
   # configure pam services
   echo 'Configuring pam services...'
@@ -79,12 +80,20 @@ function install_ ()
   else
     echo 'SSH server not found'
   fi
+
+  # restart ssh
+  echo 'Restarting ssh server...'
+  if [[ "$1" == "debian" || "$1" == "ubuntu" ]] ; then
+    sudo service ssh restart
+  elif [[ "$1" == 'fedora' || "$1" == 'centos' ]] ; then
+    sudo service sshd restart
+  fi
 }
 
 function uninstall_ ()
 {
   # change to root directory
-  cd ../..
+  cd ..
 
   # configure pam services
   echo 'Re-configuring pam services...'
@@ -96,7 +105,7 @@ function uninstall_ ()
   done
 
   # configure ssh server
-  echo 'Re-configuring ssh server...'
+  echo 'Re-configuring ssh server ...'
   if test -d /etc/ssh/ ; then
     SSH_CONFIG_DIR=/etc/ssh
   else
@@ -108,28 +117,28 @@ function uninstall_ ()
   fi
 
   # configure & uninstall
-  ./configure && make clean && sudo make uninstall
+  ./configure prefix=/usr sysconfdir=/etc && make && sudo make uninstall && make clean
 
-  # remove binaries
-  echo 'Removing binaries from /usr/bin/ ...' 
-  if test -f /usr/bin/latch ; then
-    sudo rm /usr/bin/latch 
+  # restart ssh
+  echo 'Restarting ssh server...'
+  if [[ "$1" == "debian" || "$1" == "ubuntu" ]] ; then
+    sudo service ssh restart
+  elif [[ "$1" == 'fedora' || "$1" == 'centos' ]] ; then
+    sudo service sshd restart
   fi
-  if test -f /usr/bin/latch-shell ; then
-    sudo rm /usr/bin/latch-shell
-  fi
-
 }
 
 
-if [ "$1" == "" ] ; then
-  echo 'Installing latch for Mac OS X...'
-  install_ OSX 
-elif [ "$1" == 'uninstall' ] ; then
-  echo 'Uninstalling latch for Mac OS X...'
+if [ "$1" == 'uninstall' ] ; then
+  echo 'Uninstalling latch ...'
   uninstall_
+elif [ "$1" != '' ] ; then
+  echo 'Installing prerequisites ...'
+  pre_install_
+  echo 'Installing latch ...'
+  install_ $1
 else
-  echo 'Usage: sudo ./setup [ uninstall ]'
+  echo 'Usage: sudo ./setup DIST | uninstall'
 fi
 
 

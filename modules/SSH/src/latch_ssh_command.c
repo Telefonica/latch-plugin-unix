@@ -24,8 +24,10 @@
 #include <stdlib.h>
 #include <errno.h>
 #include "config.h"
-#include "../../../lib/latch.h"
-#include "../../../lib/util.h"
+
+#include "latch.h"
+#include "util.h"
+#include "drop_privs.h"
 
 
 
@@ -35,11 +37,6 @@
 
 
 static int exec_shell(){
-
-    if(drop_privileges() != 0){
-        return 1;
-    }
-
     if (getenv("SSH_ORIGINAL_COMMAND") != NULL) {
         return execl(getenv("SHELL"), getenv("SHELL"), "-c", getenv("SSH_ORIGINAL_COMMAND"), NULL);
     }else{
@@ -47,18 +44,15 @@ static int exec_shell(){
     }
 }
 
-static int latch_shell_status(const char *username, const char *accountsFile, int defaultOption) {
+static int latch_shell_status(const char *pAccountId, int defaultOption) {
     int res = 0;
-    const char *pAccountId = NULL;
     char *buffer = NULL; 
 
-    pAccountId = getAccountId(username, accountsFile);
     if (pAccountId == NULL) {
         return 0;
     }
 
     buffer = status(pAccountId);
-    free((char*)pAccountId);
           
     if(buffer == NULL || strcmp(buffer,"") == 0) {
         free(buffer);
@@ -75,27 +69,15 @@ static int latch_shell_status(const char *username, const char *accountsFile, in
     return res;
 }
 
-static int latch_shell_operation_status(const char *username, const char *accountsFile, 
-                                            const char *configFile, const char *operation, int defaultOption) {
+static int latch_shell_operation_status(const char *pAccountId, const char *pOperationId, int defaultOption) {
     int res = 0;
-    const char *pAccountId = NULL;
-    const char *pOperationId = NULL;
     char *buffer = NULL; 
 
-    pAccountId = getAccountId(username, accountsFile);
     if (pAccountId == NULL) {
         return 0;
     }
-          
-    pOperationId = getConfig(OPERATION_ID_LENGTH, operation, configFile);
-    if(pOperationId == NULL || strcmp(pOperationId, "") == 0){
-        free((char*)pAccountId);
-        return res;
-    }
 
     buffer = operationStatus(pAccountId, pOperationId);
-    free((char*)pAccountId);
-    free((char*)pOperationId);
         
     if(buffer == NULL || strcmp(buffer,"") == 0) {
         free(buffer);
@@ -115,6 +97,8 @@ static int latch_shell_operation_status(const char *username, const char *accoun
 
 int main(int argc, char **argv) {
 
+    int fperms = 0;
+    int aperms = 0;
     int sflag = 0;
     char *fvalue = NULL;
     char *avalue = NULL;
@@ -122,11 +106,13 @@ int main(int argc, char **argv) {
     int index;
     int c;
     int error = 0;
+    const char *pAccountId = NULL;
     const char* pUsername = NULL;                
     const char* pSecretKey = NULL;
     const char* pAppId = NULL;
     const char* pHost = NULL;
     const char* pTimeout = NULL;
+    const char *pOperationId = NULL;
     char* pDefaultOption = NULL;
     char *buffer;    
     int timeout = 2;
@@ -176,13 +162,19 @@ int main(int argc, char **argv) {
      
     if (avalue == NULL) {
         avalue = DEFAULT_LATCH_ACCOUNTS_FILE;
+        aperms = 1;
     } else if (access(avalue, R_OK) != 0) {
         return 1;
     }
       
     if (fvalue == NULL) {
         fvalue = DEFAULT_LATCH_CONFIG_FILE;
+        fperms = 1;
     } else if (access(fvalue, R_OK) != 0) {
+        return 1;
+    }
+
+    if (!fperms && drop_privileges(0)) {
         return 1;
     }
 
@@ -191,6 +183,10 @@ int main(int argc, char **argv) {
    
     if(pAppId == NULL || pSecretKey == NULL || strcmp(pAppId, "") == 0 || strcmp(pSecretKey, "") == 0){
         return exec_shell();
+    }
+
+    if(ovalue && (pOperationId = getConfig(OPERATION_ID_LENGTH, ovalue, fvalue) == NULL)) {
+        return 1;
     }
      
     pDefaultOption = (char*)getConfig(DEFAULT_OPTION_MAX_LENGTH, "action", fvalue);
@@ -212,31 +208,47 @@ int main(int argc, char **argv) {
     free((char*)pDefaultOption);
 
     pHost = getConfig(MAX_SIZE, "latch_host", fvalue);
-    if(pHost == NULL) {
+    if (pHost == NULL) {
         pHost = malloc(LATCH_API_HOST_LENGTH + 1);
         memset((char*)pHost, 0, LATCH_API_HOST_LENGTH + 1);
         strncpy((char*)pHost, LATCH_API_HOST, LATCH_API_HOST_LENGTH);
     }
 
     pTimeout = getConfig(TIMEOUT_MAX_LENGTH, "timeout", fvalue);
-    if(pTimeout == NULL || ((timeout = atoi(pTimeout)) < TIMEOUT_MIN) || timeout > TIMEOUT_MAX) {
+    if (pTimeout == NULL || ((timeout = atoi(pTimeout)) < TIMEOUT_MIN) || timeout > TIMEOUT_MAX) {
         timeout = 2;
     }
     free((char*)pTimeout);
-           
+ 
+    if (!aperms && drop_privileges(0)) {
+        return 1;
+    } 
+
+    if (aperms && !fperms) {
+        restore_privileges();
+    }
+
+    pAccountId = getAccountId(pUsername, avalue);
+
+    if (drop_privileges(1)) {
+        return 1;
+    }
+
     init(pAppId, pSecretKey);
     setHost(pHost);
     setTimeout(timeout);
            
     if (sflag) {
-        res = latch_shell_status(pUsername, avalue, default_option);
+        res = latch_shell_status(pAccountId, default_option);
     } else if (ovalue) {
-        res = latch_shell_operation_status(pUsername, avalue, fvalue, ovalue, default_option);
+        res = latch_shell_operation_status(pAccountId, pOperationId, default_option);
     } 
 
+    free((char*)pAccountId);
     free((char*)pAppId);
     free((char*)pSecretKey);
     free((char*)pHost);
+    free((char*)pOperationId);
    
     if (! res) {
         res = exec_shell();
