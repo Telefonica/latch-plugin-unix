@@ -18,8 +18,6 @@ function pre_install_ ()
 
 function install_ ()
 {
-  local SYS=$1
-
   # change to root directory
   cd ..
 
@@ -27,7 +25,7 @@ function install_ ()
   ./configure prefix=/usr sysconfdir=/etc && make && sudo make install
 
   # move pam_latch.so to PAM directory
-  echo 'Moving pam_latch.so to PAM directory...' 
+  echo 'Moving pam_latch.so to PAM directory ...' 
   if test -d /lib*/*/security/ ; then
     PAM_DIR=/lib*/*/security/
   elif test -d /lib*/security/ ; then
@@ -40,15 +38,15 @@ function install_ ()
 
   if test -d $PAM_DIR && test -f /usr/lib/pam_latch.so ; then
     echo 'PAM directory: '$PAM_DIR
-    sudo cp /usr/lib/pam_latch.so $PAM_DIR
+    sudo mv /usr/lib/pam_latch.so $PAM_DIR
   else
     echo 'Move /usr/lib/pam_latch.so manually to PAM dir'
     exit 1
   fi
 
   # change to centos directory
-  echo 'Setting up '$SYS'...'
-  cd examples/$SYS/
+  echo "Setting up $1 ..."
+  cd examples/$1/
 
   # configure pam services
   echo 'Configuring pam services...'
@@ -119,7 +117,7 @@ function uninstall_ ()
   fi
 
   # configure & uninstall
-  ./configure prefix=/usr sysconfdir=/etc && make clean && sudo make uninstall
+  ./configure prefix=/usr sysconfdir=/etc && make && sudo make uninstall && make clean
 
   # restart ssh
   echo 'Restarting ssh server...'
