@@ -185,7 +185,7 @@ int main(int argc, char **argv) {
         return exec_shell();
     }
 
-    if(ovalue && (pOperationId = getConfig(OPERATION_ID_LENGTH, ovalue, fvalue) == NULL)) {
+    if(ovalue && ((pOperationId = getConfig(OPERATION_ID_LENGTH, ovalue, fvalue)) == NULL)) {
         return 1;
     }
      
