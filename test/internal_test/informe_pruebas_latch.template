@@ -122,9 +122,10 @@ Respuesta:
 RESPONSE_8_
 ```
 
-###9ª Prueba: Prueba de despareo  
+###9ª Prueba: Consulta de estado de bloqueo de cuenta mediante aplicación latch-UNIX pareada
 
-1º- Se procede a desparear la cuenta  
+1º- Se procede a bloquear  
+2º- Se consulta el estado de latch  
 
 ```
 TEST_9_
@@ -135,9 +136,10 @@ Respuesta:
 RESPONSE_9_
 ```
 
-###10ª Prueba: Prueba de despareo estando previamente despareado  
+###10ª Prueba: Consulta de estado de desbloqueo de cuenta mediante aplicación latch-UNIX pareada
 
-1º- Se procede a desparear la cuenta  
+1º- Se procede a desbloquear  
+2º- Se consulta el estado de latch  
 
 ```
 TEST_10_
@@ -148,10 +150,9 @@ Respuesta:
 RESPONSE_10_
 ```
 
-###11ª Prueba: Prueba de despareo sin conexión a Internet
+###11ª Prueba: Prueba de despareo  
 
-1º- Se desconecta la red  
-2º- Se procede a desparear la cuenta  
+1º- Se procede a desparear la cuenta  
 
 ```
 TEST_11_
@@ -160,4 +161,31 @@ TEST_11_
 Respuesta:  
 ```
 RESPONSE_11_
+```
+
+###12ª Prueba: Prueba de despareo estando previamente despareado  
+
+1º- Se procede a desparear la cuenta  
+
+```
+TEST_12_
+```
+
+Respuesta:  
+```
+RESPONSE_12_
+```
+
+###13ª Prueba: Prueba de despareo sin conexión a Internet
+
+1º- Se desconecta la red  
+2º- Se procede a desparear la cuenta  
+
+```
+TEST_13_
+```
+
+Respuesta:  
+```
+RESPONSE_13_
 ```

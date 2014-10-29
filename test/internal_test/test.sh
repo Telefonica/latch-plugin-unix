@@ -164,8 +164,16 @@ function test_ {
         esac        
                 
     elif [ "$2" == "status" ]; then
-    	local OPERATION_NAME=app_id
-        local REQUEST="latch -s"
+        case "$3" in
+            "op")
+                local OPERATION_NAME=$4
+                local REQUEST="latch -o $4"
+                ;;
+            *)
+                local OPERATION_NAME=app_id
+                local REQUEST="latch -s"
+                ;;
+        esac 
 
     elif [ "$2" == "unpair" ]; then
         local REQUEST="latch -u"    
@@ -260,11 +268,13 @@ suit_test_pair () {
 suit_test_status () {
     test_ 7 status latch-on
     test_ 8 status latch-off
+    test_ 9 status op test_op latch-on
+    test_ 10 status opt test_op latch-off
 }
 
 suit_test_unpair () {
-    test_ 9 unpair
-    test_ 10 unpair
+    test_ 11 unpair
+    test_ 12 unpair
 }
 
 suit_test_ssh_pam () {
