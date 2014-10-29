@@ -339,7 +339,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    if(ovalue && (pOperationId = getConfig(OPERATION_ID_LENGTH, ovalue, fvalue) == NULL)) {
+    if(ovalue && ((pOperationId = getConfig(OPERATION_ID_LENGTH, ovalue, fvalue)) == NULL)) {
         fprintf(stderr, STATUS_NOT_OP_ERROR_$OP_$CFILE_MSG, ovalue, fvalue);
         return 1;
     }
