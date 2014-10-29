@@ -269,7 +269,7 @@ suit_test_status () {
     test_ 7 status latch-on
     test_ 8 status latch-off
     test_ 9 status op test_op latch-on
-    test_ 10 status opt test_op latch-off
+    test_ 10 status op test_op latch-off
 }
 
 suit_test_unpair () {

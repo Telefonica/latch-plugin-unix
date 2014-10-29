@@ -18,7 +18,7 @@
 TEST_1_
 ```
 
-Respuesta:  
+Response:  
 ```
 RESPONSE_1_
 ```
@@ -32,7 +32,7 @@ RESPONSE_1_
 TEST_2_
 ```
 
-Respuesta:  
+Response:  
 ```
 RESPONSE_2_
 ```
@@ -46,7 +46,7 @@ RESPONSE_2_
 TEST_3_
 ```
 
-Respuesta:  
+Response:  
 ```
 RESPONSE_3_
 ```
@@ -60,7 +60,7 @@ RESPONSE_3_
 TEST_4_
 ```
 
-Respuesta:  
+Response:  
 ```
 RESPONSE_4_
 ```
@@ -74,7 +74,7 @@ RESPONSE_4_
 TEST_5_
 ```
 
-Respuesta:  
+Response:  
 ```
 RESPONSE_5_
 ```
@@ -89,7 +89,7 @@ RESPONSE_5_
 TEST_6_
 ```
 
-Respuesta:  
+Response:  
 ```
 RESPONSE_6_
 ```
@@ -103,7 +103,7 @@ RESPONSE_6_
 TEST_7_
 ```
 
-Respuesta:  
+Response:  
 ```
 RESPONSE_7_
 ```
@@ -117,35 +117,29 @@ RESPONSE_7_
 TEST_8_
 ```
 
-Respuesta:  
+Response:  
 ```
 RESPONSE_8_
 ```
 
-###9ª Prueba: Consulta de estado de bloqueo de cuenta mediante aplicación latch-UNIX pareada
-
-1º- Se procede a bloquear  
-2º- Se consulta el estado de latch  
+###9th test: Check locked operation status 
 
 ```
 TEST_9_
 ```
 
-Respuesta:  
+Response:  
 ```
 RESPONSE_9_
 ```
 
-###10ª Prueba: Consulta de estado de desbloqueo de cuenta mediante aplicación latch-UNIX pareada
-
-1º- Se procede a desbloquear  
-2º- Se consulta el estado de latch  
+###10th test: Check unlocked operation status
 
 ```
 TEST_10_
 ```
 
-Respuesta:  
+Response:  
 ```
 RESPONSE_10_
 ```
@@ -158,7 +152,7 @@ RESPONSE_10_
 TEST_11_
 ```
 
-Respuesta:  
+Response:  
 ```
 RESPONSE_11_
 ```
@@ -171,7 +165,7 @@ RESPONSE_11_
 TEST_12_
 ```
 
-Respuesta:  
+Response:  
 ```
 RESPONSE_12_
 ```
@@ -185,7 +179,7 @@ RESPONSE_12_
 TEST_13_
 ```
 
-Respuesta:  
+Response:  
 ```
 RESPONSE_13_
 ```
