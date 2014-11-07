@@ -47,7 +47,7 @@ yum install pam-devel libcurl-devel openssl-devel
 ##INSTALLING THE PLUGIN IN UNIX
 * Cd to the top-level directory of the plugin, and use the **"./configure && make && sudo make install"** command to install it.
 ```
-./configure && make && sudo make install
+./configure prefix=/usr sysconfdir=/etc && make && sudo make install
 ```
 
 * Edit /etc/latch/latch.conf file and add your **"Application ID"** and **"Secret"**. Add as operations as services will be protected with latch.
@@ -56,7 +56,7 @@ yum install pam-devel libcurl-devel openssl-devel
 
 * Move pam_latch.so (located in $distdir/lib) into the PAM directory (where PAM modules are stored).
 ```
-sudo mv /usr/local/lib/pam_latch.so $PAM_DIR
+sudo mv /usr/lib/pam_latch.so $PAM_DIR
 ```
 
 Depending on the system, PAM directory is located in a different place:
@@ -67,19 +67,11 @@ PAM_DIR=/usr/lib/pam
 ```
 Ubuntu, Debian:
 ```
-PAM_DIR=/lib/*/security, /lib64/security/, /lib/security/
+PAM_DIR=/lib/*/security, /lib*/security/
 ```
 CentOS, Fedora, RedHat:
 ```
-PAM_DIR=/lib64/security/, /lib/security/
-```
-
-* Latch binary located in $distdir/bin must be placed in /usr/bin, and changed permissions to 4755.
-```
-sudo mv /usr/local/bin/latch /usr/bin/
-```
-```
-sudo chmod 4755 /usr/bin/latch
+PAM_DIR=/lib*/security/
 ```
 
 * There are some PAM configuration examples how to protect some applications (such as sudo, sshd, su, login, etc.) in examples/ directory. Usually, your PAM module is setup by adding a line to the appropriate file in /etc/pam.d/:
@@ -98,20 +90,12 @@ ChallengeResponseAuthentication yes
 PasswordAuthentication no
 ```
 
-* In order to protect authentication for SSH pubkeys, move latch-shell binary installed in $distdir/bin to /usr/bin/, and change permissions to 4755.
+* In order to protect authentication for SSH pubkeys, use the command option in users’ ~/.ssh/authorized_keys:
 ```
-sudo mv /usr/local/bin/latch-shell /usr/bin/
-```
-```
-sudo chmod 4755 /usr/bin/latch-shell
+command="latch-ssh-cmd -o sshd-keys" ssh-rsa AAA...HP5 someone@host
 ```
 
-Use the command option in users’ ~/.ssh/authorized_keys:
-```
-command="latch-shell -o sshd-keys" ssh-rsa AAA...HP5 someone@host
-```
-
-Note: OTP not implemented for latch-shell.
+Note: OTP not implemented for latch-ssh-cmd.
 
 * Restart ssh service.
 
@@ -134,7 +118,7 @@ sudo service sshd restart
 
 * Open a terminal. Move to the top-level directory of the plugin. Run **"sudo make uninstall"**.
 ```
-./configure && sudo make uninstall
+./configure prefix=/usr sysconfdir=/etc && sudo make uninstall
 ```
 
 * Remove binaries.
