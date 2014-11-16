@@ -17,16 +17,54 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "latch.h"
+#include <ctype.h>
+#include <stdarg.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
-#define ACCOUNT_ID_MAX_LENGTH 64
-#define OPERATION_ID_MAX_LENGTH 20
-#define TOKEN_MAX_LENGTH 6
+#include <curl/curl.h>
+#include <curl/easy.h>
+
+#include <openssl/hmac.h>
+#include <openssl/bio.h>
+#include <openssl/evp.h>
+#include <openssl/buffer.h>
+
+#define AUTHORIZATION_HEADER_NAME "Authorization"
+#define DATE_HEADER_NAME "X-11Paths-Date"
+#define AUTHORIZATION_METHOD "11PATHS"
+#define AUTHORIZATION_HEADER_FIELD_SEPARATOR " "
+#define UTC_STRING_FORMAT "%Y-%m-%d %H:%M:%S"
+
+#define API_CHECK_STATUS_URL "/api/0.9/status"
+#define API_PAIR_URL "/api/0.9/pair"
+#define API_PAIR_WITH_ID_URL "/api/0.9/pairWithId"
+#define API_UNPAIR_URL "/api/0.9/unpair"
+#define API_LOCK_URL "/api/0.9/lock"
+#define API_UNLOCK_URL "/api/0.9/unlock"
+#define API_HISTORY_URL "/api/0.9/history"
+#define API_OPERATION_URL "/api/0.9/operation"
+
+#define HTTP_METHOD_GET "GET"
+#define HTTP_METHOD_POST "POST"
+#define HTTP_METHOD_PUT "PUT"
+#define HTTP_METHOD_DELETE "DELETE"
+
+#define HTTP_PARAM_LOCK_ON_REQUEST "lock_on_request"
+#define HTTP_PARAM_NAME "name"
+#define HTTP_PARAM_PARENTID "parentId"
+#define HTTP_PARAM_TWO_FACTOR "two_factor"
 
 typedef struct curl_response_buffer {
-  char *buffer;
-  size_t size;
+    char *buffer;
+    size_t size;
 } curl_response_buffer;
+
+typedef struct http_param {
+    char *name;
+    char *value;
+} http_param;
 
 /*
  * Function to handle stuff from HTTP response.
@@ -80,6 +118,43 @@ char* base64encode(const unsigned char *input, int length) {
 	return buff;
 }
 
+char toHex(char code) {
+    static char hex[] = "0123456789ABCDEF";
+    return hex[code & 15];
+}
+
+/*
+ * Function to percent-encode a string
+ *
+ * Based on http://www.geekhideout.com/downloads/urlcode.c
+ */
+char* urlEncode(const char* str, int space2Plus) {
+
+    char* buf = NULL;
+    char* pbuf = NULL;
+    const char* pstr = str;
+
+    if ((str != NULL) && ((buf = malloc(strlen(str) * 3 + 1)) != NULL)) {
+        pbuf = buf;
+        while (*pstr) {
+            if (isalnum(*pstr) || *pstr == '-' || *pstr == '_' || *pstr == '.' || *pstr == '~') {
+                *pbuf++ = *pstr;
+            } else if (*pstr == ' ' && space2Plus) {
+                *pbuf++ = '+';
+            } else {
+                *pbuf++ = '%';
+                *pbuf++ = toHex(*pstr >> 4);
+                *pbuf++ = toHex(*pstr & 15);
+            }
+            pstr++;
+        }
+        *pbuf = '\0';
+    }
+
+    return buf;
+
+}
+
 /*
  * Function to calculate the HMAC hash (SHA1) of a string. Returns a Base64 value of the hash
  * 
@@ -88,10 +163,10 @@ char* base64encode(const unsigned char *input, int length) {
  * @return HMAC in Base64 format
  */
 char* sign_data(const char* pSecretKey, const char* pData) {
-	unsigned char* digest;
-	
-	digest = HMAC(EVP_sha1(), pSecretKey, strlen(pSecretKey), (unsigned char*)pData, strlen(pData), NULL, NULL);
-	return base64encode(digest, 20);
+    unsigned char* digest;
+
+    digest = HMAC(EVP_sha1(), pSecretKey, strlen(pSecretKey), (unsigned char*) pData, strlen(pData), NULL, NULL);
+    return base64encode(digest, 20);
 }
 
 int nosignal = 0;
@@ -148,7 +223,7 @@ void setTLSCRLFile(const char* pTLSCRLFile)
     tlsCRLFile = pTLSCRLFile;
 }
 
-void authenticationHeaders(const char* pHTTPMethod, const char* pQueryString, char* pHeaders[]) {
+void authenticationHeaders(const char* pHTTPMethod, const char* pQueryString, char* pHeaders[], const char *pBody) {
 
 	char* authHeader, *dateHeader, *stringToSign, *b64hash;
 	char utc[20];
@@ -160,9 +235,19 @@ void authenticationHeaders(const char* pHTTPMethod, const char* pQueryString, ch
 	gmtime_r(&timer, &tm_info);
 	strftime(utc, 20, UTC_STRING_FORMAT, &tm_info);
 
-	len = strlen(pHTTPMethod) + strlen(utc) + strlen(pQueryString) + 4;
+	if (pBody == NULL) {
+	    len = strlen(pHTTPMethod) + strlen(utc) + strlen(pQueryString) + 4;
+	} else {
+	    len = strlen(pHTTPMethod) + strlen(utc) + strlen(pQueryString) + strlen(pBody) + 5;
+	}
+
 	stringToSign = malloc(len);
-	snprintf(stringToSign, len, "%s\n%s\n\n%s", pHTTPMethod, utc, pQueryString);
+
+	if (pBody == NULL) {
+	    snprintf(stringToSign, len, "%s\n%s\n\n%s", pHTTPMethod, utc, pQueryString);
+	} else {
+	    snprintf(stringToSign, len, "%s\n%s\n\n%s\n%s", pHTTPMethod, utc, pQueryString, pBody);
+	}
 
 	b64hash = sign_data(SecretKey, stringToSign);
 
@@ -186,7 +271,7 @@ void authenticationHeaders(const char* pHTTPMethod, const char* pQueryString, ch
  * Perform a GET request to the specified URL of the Latch API
  * @param pUrl- requested URL including host
  */
-char* http_get_proxy(const char* pUrl) {
+char* http_proxy(const char* pMethod, const char* pUrl, const char* pBody) {
 
 	char* headers[2];
 	curl_response_buffer response;
@@ -196,7 +281,7 @@ char* http_get_proxy(const char* pUrl) {
 	int i = 0;
 	struct curl_slist* chunk = NULL;
 	char* hostAndUrl;
-	
+
 	if (!pCurl) {
 		return NULL;
 	}
@@ -205,7 +290,7 @@ char* http_get_proxy(const char* pUrl) {
     response.size = 0;
     response.buffer[response.size] = '\0';
 
-	authenticationHeaders("GET", pUrl, headers);
+	authenticationHeaders(pMethod, pUrl, headers, pBody);
 	for (i=0; i<(sizeof(headers)/sizeof(char*)); i++) {
 		chunk = curl_slist_append(chunk, headers[i]);
 	}
@@ -223,6 +308,15 @@ char* http_get_proxy(const char* pUrl) {
 	curl_easy_setopt(pCurl, CURLOPT_WRITEDATA, &response);
 	curl_easy_setopt(pCurl, CURLOPT_NOPROGRESS, 1); // we don't care about progress
 	curl_easy_setopt(pCurl, CURLOPT_FAILONERROR, 1);
+
+	curl_easy_setopt(pCurl, CURLOPT_CUSTOMREQUEST, pMethod);
+
+	if ((strncmp(pMethod, HTTP_METHOD_POST, strlen(HTTP_METHOD_POST)) == 0) || (strncmp(pMethod, HTTP_METHOD_PUT, strlen(HTTP_METHOD_PUT)) == 0)) {
+	    curl_easy_setopt(pCurl, CURLOPT_POSTFIELDS, pBody);
+	    if (pBody == NULL) {
+	        curl_easy_setopt(pCurl, CURLOPT_POSTFIELDSIZE, 0);
+	    }
+	}
 
 	if(Proxy != NULL){
 		curl_easy_setopt(pCurl, CURLOPT_PROXY, Proxy);
@@ -280,106 +374,290 @@ char* http_get_proxy(const char* pUrl) {
 
 }
 
+char* build_string(int argc, char** argv) {
 
-char* pairWithId(const char* pAccountId) {
+    int i = 0;
+    int len = 1;
+    char *rv = NULL;
 
-    char *response = NULL;
-    char *url = NULL;
-
-    if ((url = malloc((strlen(API_PAIR_WITH_ID_URL) + 1 + strnlen(pAccountId, ACCOUNT_ID_MAX_LENGTH) + 1)*sizeof(char))) == NULL) {
-        return NULL;
+    for (i = 0; i < argc; i++) {
+        if (argv[i] != NULL) {
+            len += strlen(argv[i]);
+        }
     }
 
-    snprintf(url, strlen(API_PAIR_WITH_ID_URL) + 1 + strnlen(pAccountId, ACCOUNT_ID_MAX_LENGTH) + 1, "%s/%s", API_PAIR_WITH_ID_URL, pAccountId);
+    if ((rv = (char *) malloc(len)) != NULL) {
+        *rv = '\0';
+        for (i = 0; i < argc; i++) {
+            if (argv[i] != NULL) {
+                strncat(rv, argv[i], strlen(argv[i]));
+            }
+        }
+    }
 
-    response = http_get_proxy(url);
+    return rv;
 
-    free(url);
+}
+
+char* build_url(int argc, ...) {
+
+    int i = 0;
+    char *tokens[2 * argc - 1];
+    char *response = NULL;
+    va_list args;
+
+    va_start(args, argc);
+    for (i = 0; i < 2 * argc - 1; i = i + 2) {
+        if (i == 0) {
+            tokens[i] = va_arg(args, char*);
+        } else {
+            tokens[i] = urlEncode(va_arg(args, char*), 0);
+        }
+        if (i < 2 * argc - 1) {
+            if (tokens[i] == NULL) {
+                tokens[i + 1] = NULL;
+            } else {
+                tokens[i + 1] = "/";
+            }
+        }
+    }
+    va_end(args);
+
+    response = build_string(2 * argc - 1, tokens);
+
+    for (i = 0; i < 2 * argc - 1; i = i + 2) {
+        if (i != 0) {
+            free(tokens[i]);
+        }
+    }
 
     return response;
 
+}
+
+char* build_url_v(int argc, va_list args) {
+
+    int i = 0;
+    char *tokens[2 * argc - 1];
+    char *response = NULL;
+
+    for (i = 0; i < 2 * argc - 1; i = i + 2) {
+        if (i == 0) {
+            tokens[i] = va_arg(args, char*);
+        } else {
+            tokens[i] = urlEncode(va_arg(args, char*), 0);
+        }
+        if (i < 2 * argc - 1) {
+            if (tokens[i] == NULL) {
+                tokens[i + 1] = NULL;
+            } else {
+                tokens[i + 1] = "/";
+            }
+        }
+    }
+
+    response = build_string(2 * argc - 1, tokens);
+
+    for (i = 0; i < 2 * argc - 1; i = i + 2) {
+        if (i != 0) {
+            free(tokens[i]);
+        }
+    }
+
+    return response;
+
+}
+
+char* build_querystring(int argc, http_param* params) {
+
+    int i = 0;
+    int j = 0;
+    char *rv = NULL;
+    char *tokens[4 * argc];
+
+    for (i = 0, j = 0; i < 4 * argc; i = i + 4, j++) {
+        if (params[j].name != NULL && params[j].value != NULL) {
+            tokens[i] = params[j].name;
+            tokens[i + 1] = "=";
+            tokens[i + 2] = params[j].value;
+            tokens[i + 3] = "&";
+        } else {
+            tokens[i] = NULL;
+            tokens[i + 1] = NULL;
+            tokens[i + 2] = NULL;
+            tokens[i + 3] = NULL;
+        }
+    }
+
+    rv = build_string(4 * argc, tokens);
+    rv[strlen(rv) - 1] = '\0';
+
+    return rv;
+
+}
+
+char* operation(const char* pMethod, int nParams, http_param* params, int nUrlTokens, ...) {
+
+    int i = 0;
+    int valid = 1;
+    char *response = NULL;
+    char *url = NULL;
+    char *body = NULL;
+    va_list args;
+
+    va_start(args, nUrlTokens);
+    for (i = 0; i < nUrlTokens; i++) {
+        if (va_arg(args, char*) == NULL) {
+            valid = 0;
+        }
+    }
+    va_end(args);
+
+    va_start(args, nUrlTokens);
+
+    if (valid && ((url = build_url_v(nUrlTokens, args)) != NULL)) {
+
+        if (nParams > 0) {
+            body = build_querystring(nParams, params);
+        }
+
+        response = http_proxy(pMethod, url, body);
+
+        free(url);
+        free(body);
+
+    }
+
+    va_end(args);
+
+    return response;
+
+}
+
+char* pairWithId(const char* pAccountId) {
+    return operation(HTTP_METHOD_GET, 0, NULL, 2, API_PAIR_WITH_ID_URL, pAccountId);
 }
 
 char* pair(const char* pToken) {
-
-    char *response = NULL;
-    char *url = NULL;
-
-    if ((url = malloc((strlen(API_PAIR_URL) + 1 + strnlen(pToken, TOKEN_MAX_LENGTH) + 1)*sizeof(char))) == NULL) {
-        return NULL;
-    }
-
-    snprintf(url, strlen(API_PAIR_URL) + 1 + strnlen(pToken, TOKEN_MAX_LENGTH) + 1, "%s/%s", API_PAIR_URL, pToken);
-
-    response = http_get_proxy(url);
-
-    free(url);
-
-    return response;
-
+    return operation(HTTP_METHOD_GET, 0, NULL, 2, API_PAIR_URL, pToken);
 }
 
 char* status(const char* pAccountId) {
-
-    char *response = NULL;
-    char *url = NULL;
-
-    if ((url = malloc((strlen(API_CHECK_STATUS_URL) + 1 + strnlen(pAccountId, ACCOUNT_ID_MAX_LENGTH) + 1)*sizeof(char))) == NULL) {
-        return NULL;
-    }
-
-    snprintf(url, strlen(API_CHECK_STATUS_URL) + 1 + strnlen(pAccountId, ACCOUNT_ID_MAX_LENGTH) + 1, "%s/%s", API_CHECK_STATUS_URL, pAccountId);
-
-    response = http_get_proxy(url);
-
-    free(url);
-
-    return response;
-
+    return operation(HTTP_METHOD_GET, 0, NULL, 2, API_CHECK_STATUS_URL, pAccountId);
 }
 
 char* operationStatus(const char* pAccountId, const char* pOperationId) {
+    return operation(HTTP_METHOD_GET, 0, NULL, 4, API_CHECK_STATUS_URL, pAccountId, "op", pOperationId);
+}
+
+char* unpair(const char* pAccountId) {
+    return operation(HTTP_METHOD_GET, 0, NULL, 2, API_UNPAIR_URL, pAccountId);
+}
+
+char* lock(const char* pAccountId) {
+    return operation(HTTP_METHOD_POST, 0, NULL, 2, API_LOCK_URL, pAccountId);
+}
+
+char* operationLock(const char* pAccountId, const char* pOperationId) {
+    return operation(HTTP_METHOD_POST, 0, NULL, 4, API_LOCK_URL, pAccountId, "op", pOperationId);
+}
+
+char* unlock(const char* pAccountId) {
+    return operation(HTTP_METHOD_POST, 0, NULL, 2, API_UNLOCK_URL, pAccountId);
+}
+
+char* operationUnlock(const char* pAccountId, const char* pOperationId) {
+    return operation(HTTP_METHOD_POST, 0, NULL, 4, API_UNLOCK_URL, pAccountId, "op", pOperationId);
+}
+
+char* history(const char* pAccountId) {
+    return operation(HTTP_METHOD_GET, 0, NULL, 2, API_HISTORY_URL, pAccountId);
+}
+
+char* timePeriodHistory(const char* pAccountId, time_t from, time_t to) {
+
+    char sFrom[14];
+    char sTo[14];
+
+    if (from == 0) {
+        snprintf(sFrom, 14, "%lld", (long long)from);
+    } else {
+        snprintf(sFrom, 14, "%lld000", (long long)from);
+    }
+
+    if (to == 0) {
+        snprintf(sTo, 14, "%lld", (long long)to);
+    } else {
+        snprintf(sTo, 14, "%lld000", (long long)to);
+    }
+
+    return operation(HTTP_METHOD_GET, 0, NULL, 4, API_HISTORY_URL, pAccountId, sFrom, sTo);
+
+}
+
+char* operationCreate(const char* pParentId, const char* pName, const char* pTwoFactor, const char* pLockOnRequest) {
 
     char *response = NULL;
-    char *urlA = NULL;
-    char *urlB = NULL;
+    http_param params[4];
 
-    if ((urlA = malloc((strlen(API_CHECK_STATUS_URL) + 1 + strnlen(pAccountId, ACCOUNT_ID_MAX_LENGTH) + 1)*sizeof(char))) == NULL) {
-        return NULL;
+    if (pParentId != NULL && pName != NULL) {
+
+        params[0].name = HTTP_PARAM_LOCK_ON_REQUEST;
+        params[0].value = pLockOnRequest == NULL ? NULL : urlEncode(pLockOnRequest, 1);
+        params[1].name = HTTP_PARAM_NAME;
+        params[1].value = urlEncode(pName, 1);
+        params[2].name = HTTP_PARAM_PARENTID;
+        params[2].value = urlEncode(pParentId, 1);
+        params[3].name = HTTP_PARAM_TWO_FACTOR;
+        params[3].value = pTwoFactor == NULL ? NULL : urlEncode(pTwoFactor, 1);
+
+        response = operation(HTTP_METHOD_PUT, 4, params, 1, API_OPERATION_URL);
+
+        free(params[0].value);
+        free(params[1].value);
+        free(params[2].value);
+        free(params[3].value);
+
     }
-
-    if ((urlB = malloc((strlen(API_CHECK_STATUS_URL) + 1 + strnlen(pAccountId, ACCOUNT_ID_MAX_LENGTH) + 4 + strnlen(pOperationId, OPERATION_ID_MAX_LENGTH) + 1)*sizeof(char))) == NULL) {
-        free(urlA);
-        return NULL;
-    }
-
-    snprintf(urlA, strlen(API_CHECK_STATUS_URL) + 1 + strnlen(pAccountId, ACCOUNT_ID_MAX_LENGTH) + 1, "%s/%s", API_CHECK_STATUS_URL, pAccountId);
-    snprintf(urlB, strlen(urlA) + 4 + strnlen(pOperationId, OPERATION_ID_MAX_LENGTH) + 1, "%s/op/%s", urlA, pOperationId);
-
-    response = http_get_proxy(urlB);
-
-    free(urlA);
-    free(urlB);
 
     return response;
 
 }
 
-char* unpair(const char* pAccountId) {
+char* operationUpdate(const char* pOperationId, const char* pName, const char* pTwoFactor, const char* pLockOnRequest) {
 
     char *response = NULL;
-    char *url = NULL;
+    http_param params[3];
 
-    if ((url = malloc((strlen(API_UNPAIR_URL) + 1 + strnlen(pAccountId, ACCOUNT_ID_MAX_LENGTH) + 1)*sizeof(char))) == NULL) {
-        return NULL;
+    if (pOperationId != NULL && (pName != NULL || pTwoFactor != NULL || pLockOnRequest != NULL)) {
+
+        params[0].name = HTTP_PARAM_LOCK_ON_REQUEST;
+        params[0].value = pLockOnRequest == NULL ? NULL : urlEncode(pLockOnRequest, 1);
+        params[1].name = HTTP_PARAM_NAME;
+        params[1].value = pName == NULL ? NULL : urlEncode(pName, 1);
+        params[2].name = HTTP_PARAM_TWO_FACTOR;
+        params[2].value = pTwoFactor == NULL ? NULL : urlEncode(pTwoFactor, 1);
+
+        response = operation(HTTP_METHOD_POST, 3, params, 2, API_OPERATION_URL, pOperationId);
+
+        free(params[0].value);
+        free(params[1].value);
+        free(params[2].value);
+
     }
-
-    snprintf(url, strlen(API_UNPAIR_URL) + 1 + strnlen(pAccountId, ACCOUNT_ID_MAX_LENGTH) + 1, "%s/%s", API_UNPAIR_URL, pAccountId);
-
-    response = http_get_proxy(url);
-
-    free(url);
 
     return response;
 
+}
+
+char* operationRemove(const char* pOperationId) {
+    return operation(HTTP_METHOD_DELETE, 0, NULL, 2, API_OPERATION_URL, pOperationId);
+}
+
+char* operationGet(const char* pOperationId) {
+    return operation(HTTP_METHOD_GET, 0, NULL, 2, API_OPERATION_URL, pOperationId);
+}
+
+char* operationsGet() {
+    return operation(HTTP_METHOD_GET, 0, NULL, 1, API_OPERATION_URL);
 }
