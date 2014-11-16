@@ -1,0 +1,35 @@
+#!/usr/bin/expect -f 
+
+
+set username [lindex $argv 0]
+set password [lindex $argv 1]
+set operation_id [lindex $argv 2]
+set otp_option [lindex $argv 3]
+
+spawn ssh $username@localhost echo "ssh user authenticated!"
+
+expect {
+    "Password:" {
+        stty -echo
+        send "$password\r"
+        stty echo
+        exp_continue
+    } "One-time password:" { 
+        if { $otp_option == "wrong" } {
+            set otp "XXXX"
+        } elseif { $otp_option == "blank" } {
+            set otp ""
+        } else {
+            set otp [exec latch-client-app otp $operation_id]
+        }   	
+        send "$otp\r"
+        exp_continue
+    } timeout {
+        send_user "connection to localhost timed out\n"
+        exit
+    } eof {
+        send_user \
+            "connection to host failed: $expect_out(buffer)"
+        exit
+    } 
+}
