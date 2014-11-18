@@ -19,7 +19,7 @@
 
 
 AC_PREREQ([2.61])
-AC_INIT([latch], [1.0], [latch-help@support.elevenpaths.com])
+AC_INIT([latch], [1.1], [latch-help@support.elevenpaths.com])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS(config.h)
@@ -66,9 +66,9 @@ AC_TYPE_UID_T
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([memset strchr strerror strstr])
 
-# Default sysconfdir to /etc/latch
-test "$sysconfdir" = '${prefix}/etc' && sysconfdir=/etc/latch
-AC_DEFINE_DIR([LATCH_CONF_DIR], [sysconfdir], [Configuration directory])
+# Define latch conf dirrectory
+latchsysconfdir=$sysconfdir/latch
+AC_DEFINE_DIR([LATCH_CONF_DIR], [latchsysconfdir], [Latch configuration directory])
 
 AC_SUBST(PAMDIR, "\$(exec_prefix)/lib/security")
 AC_ARG_WITH(pam-dir,

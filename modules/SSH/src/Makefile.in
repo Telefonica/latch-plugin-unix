@@ -78,7 +78,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = latch-shell$(EXEEXT)
+bin_PROGRAMS = latch-ssh-cmd$(EXEEXT)
 subdir = modules/SSH/src
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -95,11 +95,12 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__dirstamp = $(am__leading_dot)dirstamp
-am_latch_shell_OBJECTS = latch_shell.$(OBJEXT) \
+am_latch_ssh_cmd_OBJECTS = latch_ssh_command.$(OBJEXT) \
 	$(top_builddir)/lib/latch.$(OBJEXT) \
-	$(top_builddir)/lib/util.$(OBJEXT)
-latch_shell_OBJECTS = $(am_latch_shell_OBJECTS)
-latch_shell_LDADD = $(LDADD)
+	$(top_builddir)/lib/util.$(OBJEXT) \
+	$(top_builddir)/lib/drop_privs.$(OBJEXT)
+latch_ssh_cmd_OBJECTS = $(am_latch_ssh_cmd_OBJECTS)
+latch_ssh_cmd_LDADD = $(LDADD)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
@@ -137,8 +138,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(latch_shell_SOURCES)
-DIST_SOURCES = $(latch_shell_SOURCES)
+SOURCES = $(latch_ssh_cmd_SOURCES)
+DIST_SOURCES = $(latch_ssh_cmd_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -282,11 +283,14 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = no-dependencies
-latch_shell_SOURCES = latch_shell.c \
+AM_CPPFLAGS = -I$(top_srcdir)/lib
+latch_ssh_cmd_SOURCES = latch_ssh_command.c \
 			$(top_builddir)/lib/latch.c \
-			$(top_builddir)/lib/util.c \
 			$(top_builddir)/lib/latch.h \
-			$(top_builddir)/lib/util.h
+			$(top_builddir)/lib/util.c \
+			$(top_builddir)/lib/util.h \
+			$(top_builddir)/lib/drop_privs.c \
+			$(top_builddir)/lib/drop_privs.h
 
 all: all-am
 
@@ -378,10 +382,12 @@ $(top_builddir)/lib/latch.$(OBJEXT):  \
 	$(top_builddir)/lib/$(am__dirstamp)
 $(top_builddir)/lib/util.$(OBJEXT):  \
 	$(top_builddir)/lib/$(am__dirstamp)
+$(top_builddir)/lib/drop_privs.$(OBJEXT):  \
+	$(top_builddir)/lib/$(am__dirstamp)
 
-latch-shell$(EXEEXT): $(latch_shell_OBJECTS) $(latch_shell_DEPENDENCIES) $(EXTRA_latch_shell_DEPENDENCIES) 
-	@rm -f latch-shell$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(latch_shell_OBJECTS) $(latch_shell_LDADD) $(LIBS)
+latch-ssh-cmd$(EXEEXT): $(latch_ssh_cmd_OBJECTS) $(latch_ssh_cmd_DEPENDENCIES) $(EXTRA_latch_ssh_cmd_DEPENDENCIES) 
+	@rm -f latch-ssh-cmd$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(latch_ssh_cmd_OBJECTS) $(latch_ssh_cmd_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -613,10 +619,10 @@ uninstall-am: uninstall-binPROGRAMS
 
 
 install-exec-hook:
-	echo    "#### Setting SUID for latch-shell ####"
-	ls -l $(DESTDIR)$(bindir)/latch-shell
-	chmod 4755 $(DESTDIR)$(bindir)/latch-shell
-	ls -l $(DESTDIR)$(bindir)/latch-shell
+	echo    "#### Setting SUID for latch-ssh-cmd ####"
+	ls -l $(DESTDIR)$(bindir)/latch-ssh-cmd
+	chmod 4755 $(DESTDIR)$(bindir)/latch-ssh-cmd
+	ls -l $(DESTDIR)$(bindir)/latch-ssh-cmd
 	echo    "####-------------------------------####"
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
