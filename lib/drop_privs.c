@@ -80,9 +80,7 @@ int restore_privileges(void) {
     return 0;
 }
 
-
-char *get_user_name(){
-
+static char *get_name(uid_t u_id) {
     int bufsize;
     if ((bufsize = sysconf(_SC_GETPW_R_SIZE_MAX)) == -1) {
         bufsize = 1024;
@@ -90,25 +88,19 @@ char *get_user_name(){
 
     char *buffer = malloc(bufsize);
     struct passwd pwd, *result = NULL;
-    if (getpwuid_r(getuid(), &pwd, buffer, bufsize, &result) != 0 || !result) {
+    if (getpwuid_r(u_id, &pwd, buffer, bufsize, &result) != 0 || !result) {
         return NULL;
     }
 
     return pwd.pw_name;
 }
 
+char *get_user_name(){
+    uid_t real_uid = getuid();
+    return get_name(real_uid);
+}
+
 const char *get_effective_user_name(){
-
-    int bufsize;
-    if ((bufsize = sysconf(_SC_GETPW_R_SIZE_MAX)) == -1) {
-        return NULL;
-    }
-
-    char *buffer = malloc(bufsize);
-    struct passwd pwd, *result = NULL;
-    if (getpwuid_r(geteuid(), &pwd, buffer, bufsize, &result) != 0 || !result) {
-        return NULL;
-    }
-
-    return pwd.pw_name;
+    uid_t effective_uid = geteuid();
+    return get_name(effective_uid);
 }
