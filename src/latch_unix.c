@@ -113,7 +113,7 @@ static int latch_unpair(const char *username, const char *pAccountId, const char
         printf("%s\n", RESTORE_PRIVS_ERROR_MSG);
     } 
 
-    if (deleteAccountId(username, accountsFile) == -1) {
+    if (deleteAccountId(username, accountsFile) != 0) {
         fprintf(stderr, "%s %s\n", WRITE_ACC_FILE_ERROR_MSG, accountsFile);
         free((char*)pAccountId);
         return 1;
