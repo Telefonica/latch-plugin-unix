@@ -1,6 +1,6 @@
 # sudo: auth account password session
 auth       requisite      pam_opendirectory.so
-auth       required	      pam_latch.so config=/etc/latch/latch.conf accounts=/etc/latch/latch.accounts operation=sudo otp=yes
+auth       required       pam_latch.so config=/etc/latch/latch.conf accounts=/etc/latch/latch.accounts operation=sudo otp=yes
 account    required       pam_permit.so
 password   required       pam_deny.so
 session    required       pam_permit.so
