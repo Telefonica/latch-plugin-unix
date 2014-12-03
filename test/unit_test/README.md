@@ -1,7 +1,7 @@
-* Prerrequisites:
- - CUnit 2.1.3 available -> http://sourceforge.net/projects/cunit/
+## Prerrequisites:
+* CUnit 2.1.3 available -> http://sourceforge.net/projects/cunit/  
 
-To install CUNit:
+To install CUNit: 
 ```
 autoreconf --install
 ```
