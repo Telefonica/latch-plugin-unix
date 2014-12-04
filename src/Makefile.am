@@ -2,7 +2,7 @@ AUTOMAKE_OPTIONS = no-dependencies
 DEFS =
 
 AM_CPPFLAGS = -I$(top_srcdir)/lib
-LIBS = @LIBS@ -lcurl -lcrypto -lssl -ldl
+LIBS = @LIBS@ -lcurl -lcrypto -lssl
 
 bin_PROGRAMS = latch
 latch_SOURCES = latch_unix.c latch_unix.h $(top_builddir)/lib/latch.c $(top_builddir)/lib/latch.h $(top_builddir)/lib/util.c \
