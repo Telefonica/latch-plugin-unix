@@ -1,0 +1,10 @@
+#!/bin/sh
+
+. /usr/share/debconf/confmodule
+
+if [ -e /etc/latch/latch.conf ] ; then
+	db_get pam-latch/config_file_noread
+	if [ "$RET" = "true" ]; then chmod 4755 /etc/latch/latch.conf; fi
+fi
+
+#DEBHELPER#.

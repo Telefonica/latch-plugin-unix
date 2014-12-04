@@ -1,0 +1,14 @@
+Source: pam-latch
+Section: admin
+Priority: extra
+Maintainer: Fran Dieguez <fran@openhost.es>
+Standards-Version: 3.9.5
+Build-Depends: libpam0g-dev, libcurl4-openssl-dev, debhelper (>= 5.0.0), libssl-dev, autotools-dev
+
+Package: libpam-latch
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: PAM module allowing authentication from Latch
+ This module lets you use the Latch (https://latch.elevenpaths.com/) 
+ as a source of  authentication (but not session or other) information 
+ for PAM-enabled apps.

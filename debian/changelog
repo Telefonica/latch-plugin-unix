@@ -1,0 +1,5 @@
+pam-latch (0.1-0) trusty; urgency=medium
+
+  * Initial release
+
+ -- Fran Dieguez <fran@openhost.es>  Thu, 4 Dec 2014 18:59:27 +0100
