@@ -3,3 +3,4 @@
 *.so
 *.lo
 *.la
+debian/libpam-latch
