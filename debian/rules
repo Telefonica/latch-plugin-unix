@@ -1,0 +1,64 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+arrange: arrange-stamp
+arrange-stamp: install
+	touch arrange-stamp
+
+binary: binary-stamp
+binary-stamp: binary-arch binary-indep
+	touch binary-stamp
+
+binary-arch: binary-arch-stamp
+binary-arch-stamp: arrange
+	dh_testdir
+	dh_testroot
+	dh_installdocs
+	dh_installdebconf
+	dh_installchangelogs ChangeLog upstream
+	dh_link
+	dh_shlibdeps
+	dh_strip
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+	touch binary-arch-stamp
+
+binary-indep: binary-indep-stamp
+binary-indep-stamp: arrange
+	touch binary-indep-stamp
+
+build: build-stamp
+build-stamp: config
+	dh_testdir
+	$(MAKE)
+	touch build-stamp
+
+clean:
+	dh_testdir
+	dh_testroot
+	-$(MAKE) distclean
+	dh_autotools-dev_restoreconfig
+	dh_clean arrange-stamp binary-stamp binary-arch-stamp binary-indep-stamp build-stamp config-stamp install-stamp
+
+config: config-stamp
+config-stamp:
+	dh_testdir
+	dh_autotools-dev_updateconfig
+	./configure --prefix=/usr --with-pam_mods_dir=/lib/security --with-pam=/usr
+	touch config-stamp
+
+install: install-stamp
+install-stamp: build
+	dh_testdir
+	dh_installdirs
+	$(MAKE) install DESTDIR=$(CURDIR)/debian/libpam-latch
+	mv debian/libpam-latch/usr/lib/pam_latch.so debian/libpam-latch/lib/security/pam_latch.so
+	# No, we _definitely_ don't need libtool's .la files in lib/security
+	rm -rf debian/libpam-latch/usr/lib/
+	touch install-stamp
+
+.PHONY: build clean binary-indep binary-arch binary install force-clean

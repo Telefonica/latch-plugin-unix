@@ -1,0 +1,16 @@
+This version of pam-latch supports using a config file, eg:
+/etc/latch/latch.conf to hold configuration. This file needn't
+be world readable and isn't per default in debian. You can change this
+with the command ``dpkg-reconfigure -plow libpam-latch''.
+
+In order to use this configuration file you simply type something like
+the following in your pam-file (eg. /etc/pam.d/ssh):
+
+auth       required pam_latch.so config=/etc/latch/latch.conf accounts=/etc/latch/latch.accounts operation=operation otp=yes
+
+And edit /etc/latch/latch.conf to your liking.
+
+This is not neccesarily a good idea.
+
+
+Fran Dieguez <fran@openhost.es> -- Thu, 4 Dec 2014 18:59:27 +0100
