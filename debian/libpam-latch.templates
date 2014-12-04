@@ -1,10 +1,15 @@
-Template: pam-latch/config_file_noread
-Type: boolean
-Default: true
-Description: Chmod configuration file
- This version of pam-latch has a configuration file which may include
- application keys. It is recommend to disable normal users from
- reading this file
- .
- There is probably no good reason *not* to do this. As the most common
- reason to use the configuration file is to hide the password.
+Template: pam-latch/app-id
+Type: string
+Default: LATCH_APP_ID
+Description: Latch application id:
+ Latch requires an application ID in order to work. Please go to
+ https://latch.elevenpaths.com/www/developers/editapplication,
+ create a new app and get your "Application ID"
+
+Template: pam-latch/app-secret
+Type: string
+Default: LATCH_APP_SECRET_ID
+Description: Latch application secret id:
+ Latch requires an application secret ID in order to
+ work. Copy here your "secret" from
+ https://latch.elevenpaths.com/www/developers/editapplication.

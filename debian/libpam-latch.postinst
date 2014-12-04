@@ -3,8 +3,15 @@
 . /usr/share/debconf/confmodule
 
 if [ -e /etc/latch/latch.conf ] ; then
-	db_get pam-latch/config_file_noread
-	if [ "$RET" = "true" ]; then chmod 4755 /etc/latch/latch.conf; fi
+
+    db_get high pam-latch/app-id
+    setup_appid=${RET:-LATCH_APP_ID}
+    sed -i "s/app_id = .*/app_id = $setup_appid/g" /etc/latch/latch.conf;
+
+    db_get high pam-latch/app-secret
+    setup_appsecretid=${RET:-LATCH_APP_SECRET_ID}
+    sed -i "s/secret_key = .*/secret_key = $setup_appsecretid/g" /etc/latch/latch.conf;
 fi
 
-#DEBHELPER#.
+#DEBHELPER#
+.
