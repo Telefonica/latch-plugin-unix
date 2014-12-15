@@ -29,7 +29,7 @@ sudo apt-get install libpam0g-dev libcurl4-openssl-dev libssl-dev
 ```
 For RedHat/Centos/Fedora,
 ```
-yum install pam-devel libcurl-devel openssl-devel
+sudo yum install pam-devel libcurl-devel openssl-devel
 ```
 For FreeBSD,
 ```
@@ -56,7 +56,7 @@ pkg install ftp/curl
 
 If you are installing on OpenBSD/FreeBSD, add CFLAGS="-I/usr/local/include" LDFLAGS="-L/usr/local/lib" directives to "configure", since gcc will not find dependencies otherwise.
 ```
-./configure CFLAGS="-I/usr/local/include" LDFLAGS="-L/usr/local/lib" prefix=/usr sysconfdir=/etc && make && sudo make install
+./configure CFLAGS="-I/usr/local/include" LDFLAGS="-L/usr/local/lib" prefix=/usr sysconfdir=/etc && make && make install
 ```
 
 * Edit /etc/latch/latch.conf file and add your **"Application ID"** and **"Secret"**. Add as operations as services will be protected with latch.
