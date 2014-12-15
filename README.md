@@ -31,6 +31,10 @@ For RedHat/Centos/Fedora,
 ```
 yum install pam-devel libcurl-devel openssl-devel
 ```
+For FreeBSD,
+```
+pkg install ftp/curl
+```
 
 
 * To get the **"Application ID"** and **"Secret"**, (fundamental values for integrating Latch in any application), it’s necessary to register a developer account in [Latch's website](https://latch.elevenpaths.com). On the upper right side, click on **"Developer area"**.
