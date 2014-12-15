@@ -45,9 +45,14 @@ yum install pam-devel libcurl-devel openssl-devel
 
 
 ##INSTALLING THE PLUGIN IN UNIX
-* Cd to the top-level directory of the plugin, and use the **"./configure && make && sudo make install"** command to install it.
+* Cd to the top-level directory of the plugin, and use the **"./configure prefix=/usr sysconfdir=/etc && make && sudo make install"** command to install it.
 ```
 ./configure prefix=/usr sysconfdir=/etc && make && sudo make install
+```
+
+If you are installing on OpenBSD/FreeBSD, add CFLAGS="-I/usr/local/include" LDFLAGS="-L/usr/local/lib" directives to "configure", since gcc will not find dependencies otherwise.
+```
+./configure CFLAGS="-I/usr/local/include" LDFLAGS="-L/usr/local/lib" prefix=/usr sysconfdir=/etc && make && sudo make install
 ```
 
 * Edit /etc/latch/latch.conf file and add your **"Application ID"** and **"Secret"**. Add as operations as services will be protected with latch.
@@ -67,11 +72,15 @@ PAM_DIR=/usr/lib/pam
 ```
 Ubuntu, Debian:
 ```
-PAM_DIR=/lib/*/security, /lib*/security/
+PAM_DIR=/lib*/*/security
 ```
 CentOS, Fedora, RedHat:
 ```
 PAM_DIR=/lib*/security/
+```
+FreeBSD (default installation directory):
+```
+PAM_DIR=/urs/lib/
 ```
 
 * There are some PAM configuration examples how to protect some applications (such as sudo, sshd, su, login, etc.) in examples/ directory. Usually, your PAM module is setup by adding a line to the appropriate file in /etc/pam.d/:
@@ -103,14 +112,14 @@ For Ubuntu/Debian,
 ```
 sudo service ssh restart
 ```
-For RedHat/CentOS/Fedora,
+For RedHat/CentOS/Fedora/FreeBSD,
 ```
 sudo service sshd restart
 ```
 
 
-###SELinux (Fedora) SETUP
-* In Fedora 20, the program **“SELinux“** at times defines a security policy that prevents communication from being opened between the SSH server and the Latch server. To solve this problem, you must add a SELinux module to the policy. To do so you must enter the **“modules/SSH/SELinux“** folder of the packet for the downloaded plugin and execute the command **“semodule -i latch_ssh.pp“**. Then you must enable the variable that was created through the command **“setsebool -P ssh_can_network 1“**.
+###SELinux (Fedora/CentOS) SETUP
+* In some systems, like Fedora 20 and CentOS 6.7, the program **“SELinux“** at times defines a security policy that prevents communication from being opened between the SSH server and the Latch server. To solve this problem, you must add a SELinux module to the policy. To do so you must enter the **“modules/SSH/SELinux“** folder of the packet for the downloaded plugin and execute the command **“semodule -i latch_ssh.pp“**. Then you must enable the variable that was created through the command **“setsebool -P ssh_can_network 1“**.
 
 
 ##UNINSTALLING THE PLUGIN IN UNIX
@@ -118,11 +127,8 @@ sudo service sshd restart
 
 * Open a terminal. Move to the top-level directory of the plugin. Run **"sudo make uninstall"**.
 ```
-./configure prefix=/usr sysconfdir=/etc && sudo make uninstall
+./configure prefix=/usr sysconfdir=/etc && make && sudo make uninstall
 ```
-
-* Remove binaries.
-
 
 ##USE OF LATCH PLUGIN FOR THE USERS
 **Latch does not affect in any case or in any way the usual operations with an account. It just allows or denies actions over it, acting as an independent extra layer of security that, once removed or without effect, will have no effect over the accounts, which will remain with their original state.**
