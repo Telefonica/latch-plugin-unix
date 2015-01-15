@@ -17,6 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#include "config.h"
 
 #define OTP_LENGTH 6
 #define MAX_SIZE 64
@@ -29,8 +30,14 @@
 #define TIMEOUT_MAX_LENGTH 2
 #define TIMEOUT_MIN 1
 #define TIMEOUT_MAX 99
-#define DEFAULT_LATCH_CONFIG_FILE "/etc/latch/latch.conf"
-#define DEFAULT_LATCH_ACCOUNTS_FILE "/etc/latch/latch.accounts"
+
+#define SEPARATOR "/"
+
+#define LATCH_CONF_FILE "latch.conf"
+#define LATCH_ACC_FILE "latch.accounts"
+#define DEFAULT_LATCH_CONFIG_FILE LATCH_CONF_DIR SEPARATOR LATCH_CONF_FILE
+#define DEFAULT_LATCH_ACCOUNTS_FILE LATCH_CONF_DIR SEPARATOR LATCH_ACC_FILE
+
 #define LATCH_API_HOST "https://latch.elevenpaths.com"
 #define LATCH_TEMP_FILE "/tmp/latch_temp"
 
@@ -45,9 +52,3 @@ const char* getAccountId(const char* pUser, const char* pAccounts);
 const char* getConfig(int max_size, const char* pParameter, const char* pConfig);
 
 void send_syslog_alert(char *ident, const char *msg);
-
-char *get_user_name(void);
-const char *get_effective_user_name(void);
-
-int drop_privileges(void);
-

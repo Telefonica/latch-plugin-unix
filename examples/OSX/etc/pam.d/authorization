@@ -2,5 +2,5 @@
 auth       optional       pam_krb5.so use_first_pass use_kcminit
 auth       optional       pam_ntlm.so use_first_pass
 auth       required       pam_opendirectory.so use_first_pass nullok
-auth	   required	  pam_latch.so config=/etc/latch/latch.conf accounts=/etc/latch/latch.accounts operation=login otp=no
+auth       required       pam_latch.so config=/etc/latch/latch.conf accounts=/etc/latch/latch.accounts operation=login otp=no
 account    required       pam_opendirectory.so

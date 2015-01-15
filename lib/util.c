@@ -80,18 +80,25 @@ int deleteAccountId(const char* pUsername, const char* pAccounts) {
 
     char* line = NULL;
     size_t len = 0;
+    size_t pathlen = 0;
     ssize_t read;
     FILE *fp;
     int fp_dest;
-    char nameBuff[32];
+    char *nameBuff;
 
     fp = fopen(pAccounts, "r");
     if (fp == NULL) {
         return -1;
     }
 
-    strncpy(nameBuff,"/tmp/latch-XXXXXX",17);
-    nameBuff[17] = '\0';
+    char *pLastSlash = strrchr(pAccounts,'/');
+    if(pLastSlash != NULL)
+        pathlen =  pLastSlash - pAccounts + 1;
+
+    nameBuff = malloc(pathlen + 12 + 1);
+    strncpy(nameBuff, pAccounts, pathlen);
+    strncpy(nameBuff + pathlen, "latch-XXXXXX", 12);
+    nameBuff[pathlen + 12] = '\0';
 
     fp_dest = mkstemp(nameBuff);
     if (fp_dest == -1) {
@@ -207,52 +214,4 @@ void send_syslog_alert(char *ident, const char *msg){
     openlog (ident, LOG_PID, LOG_AUTH);    
     syslog (LOG_ALERT, msg); 
     closelog ();
-}
-
-
-char *get_user_name(){
-
-    int bufsize;
-    if ((bufsize = sysconf(_SC_GETPW_R_SIZE_MAX)) == -1) {
-        return NULL;
-    }
-
-    char *buffer = malloc(bufsize);
-    struct passwd pwd, *result = NULL;
-    if (getpwuid_r(getuid(), &pwd, buffer, bufsize, &result) != 0 || !result) {
-        return NULL;
-    }
-
-    return pwd.pw_name;
-}
-
-const char *get_effective_user_name(){
-
-    int bufsize;
-    if ((bufsize = sysconf(_SC_GETPW_R_SIZE_MAX)) == -1) {
-        return NULL;
-    }
-
-    char *buffer = malloc(bufsize);
-    struct passwd pwd, *result = NULL;
-    if (getpwuid_r(geteuid(), &pwd, buffer, bufsize, &result) != 0 || !result) {
-        return NULL;
-    }
-
-    return pwd.pw_name;
-}
-
-int drop_privileges(){
-
-    uid_t uid = getuid();
-    gid_t gid = getgid();
-
-    if(setgid(gid) < 0)
-        return -1;
-    if(setuid(uid) < 0)
-        return -1;
-    if(getgid() != gid || getuid() != uid)
-        return -1;
-
-    return 0;
 }

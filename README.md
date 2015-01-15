@@ -32,8 +32,19 @@ sudo apt-get install libpam0g-dev libcurl4-openssl-dev libssl-dev
 ```
 For RedHat/Centos/Fedora,
 ```
-yum install pam-devel libcurl-devel openssl-devel
+sudo yum install pam-devel libcurl-devel openssl-devel
 ```
+For FreeBSD,
+Because of some problems with libcurl library, you must disable threaded_resolver[] option before make install:  
+```
+cd /usr/ports/ftp/curl/
+make config
+```
+And then, install curl using ports:  
+```
+make install clean
+```
+
 
 
 * To get the **"Application ID"** and **"Secret"**, (fundamental values for integrating Latch in any application), it’s necessary to register a developer account in [Latch's website](https://latch.elevenpaths.com). On the upper right side, click on **"Developer area"**.
@@ -48,9 +59,14 @@ yum install pam-devel libcurl-devel openssl-devel
 
 
 ##INSTALLING THE PLUGIN IN UNIX
-* Cd to the top-level directory of the plugin, and use the **"./configure && make && sudo make install"** command to install it.
+* Cd to the top-level directory of the plugin, and use the **"./configure prefix=/usr sysconfdir=/etc && make && sudo make install"** command to install it.
 ```
-./configure && make && sudo make install
+./configure prefix=/usr sysconfdir=/etc && make && sudo make install
+```
+
+If you are installing on OpenBSD/FreeBSD, add CFLAGS="-I/usr/local/include" LDFLAGS="-L/usr/local/lib" directives to "configure", since gcc will not find dependencies otherwise.
+```
+./configure CFLAGS="-I/usr/local/include" LDFLAGS="-L/usr/local/lib" prefix=/usr sysconfdir=/etc && make && make install
 ```
 
 * Edit /etc/latch/latch.conf file and add your **"Application ID"** and **"Secret"**. Add as operations as services will be protected with latch.
@@ -59,7 +75,7 @@ yum install pam-devel libcurl-devel openssl-devel
 
 * Move pam_latch.so (located in $distdir/lib) into the PAM directory (where PAM modules are stored).
 ```
-sudo mv /usr/local/lib/pam_latch.so $PAM_DIR
+sudo mv /usr/lib/pam_latch.so $PAM_DIR
 ```
 
 Depending on the system, PAM directory is located in a different place:
@@ -70,19 +86,15 @@ PAM_DIR=/usr/lib/pam
 ```
 Ubuntu, Debian:
 ```
-PAM_DIR=/lib/*/security, /lib64/security/, /lib/security/
+PAM_DIR=/lib*/*/security
 ```
 CentOS, Fedora, RedHat:
 ```
-PAM_DIR=/lib64/security/, /lib/security/
+PAM_DIR=/lib*/security/
 ```
-
-* Latch binary located in $distdir/bin must be placed in /usr/bin, and changed permissions to 4755.
+FreeBSD (default installation directory):
 ```
-sudo mv /usr/local/bin/latch /usr/bin/
-```
-```
-sudo chmod 4755 /usr/bin/latch
+PAM_DIR=/urs/lib/
 ```
 
 * There are some PAM configuration examples how to protect some applications (such as sudo, sshd, su, login, etc.) in examples/ directory. Usually, your PAM module is setup by adding a line to the appropriate file in /etc/pam.d/:
@@ -101,20 +113,12 @@ ChallengeResponseAuthentication yes
 PasswordAuthentication no
 ```
 
-* In order to protect authentication for SSH pubkeys, move latch-shell binary installed in $distdir/bin to /usr/bin/, and change permissions to 4755.
+* In order to protect authentication for SSH pubkeys, use the command option in users’ ~/.ssh/authorized_keys:
 ```
-sudo mv /usr/local/bin/latch-shell /usr/bin/
-```
-```
-sudo chmod 4755 /usr/bin/latch-shell
+command="latch-ssh-cmd -o sshd-keys" ssh-rsa AAA...HP5 someone@host
 ```
 
-Use the command option in users’ ~/.ssh/authorized_keys:
-```
-command="latch-shell -o sshd-keys" ssh-rsa AAA...HP5 someone@host
-```
-
-Note: OTP not implemented for latch-shell.
+Note: OTP not implemented for latch-ssh-cmd.
 
 * Restart ssh service.
 
@@ -122,14 +126,14 @@ For Ubuntu/Debian,
 ```
 sudo service ssh restart
 ```
-For RedHat/CentOS/Fedora,
+For RedHat/CentOS/Fedora/FreeBSD,
 ```
 sudo service sshd restart
 ```
 
 
-###SELinux (Fedora) SETUP
-* In Fedora 20, the program **“SELinux“** at times defines a security policy that prevents communication from being opened between the SSH server and the Latch server. To solve this problem, you must add a SELinux module to the policy. To do so you must enter the **“modules/SSH/SELinux“** folder of the packet for the downloaded plugin and execute the command **“semodule -i latch_ssh.pp“**. Then you must enable the variable that was created through the command **“setsebool -P ssh_can_network 1“**.
+###SELinux (Fedora/CentOS) SETUP
+* In some systems, like Fedora 20 and CentOS 6.7, the program **“SELinux“** at times defines a security policy that prevents communication from being opened between the SSH server and the Latch server. To solve this problem, you must add a SELinux module to the policy. To do so you must enter the **“modules/SSH/SELinux“** folder of the packet for the downloaded plugin and execute the command **“semodule -i latch_ssh.pp“**. Then you must enable the variable that was created through the command **“setsebool -P ssh_can_network 1“**.
 
 
 ##UNINSTALLING THE PLUGIN IN UNIX
@@ -137,11 +141,8 @@ sudo service sshd restart
 
 * Open a terminal. Move to the top-level directory of the plugin. Run **"sudo make uninstall"**.
 ```
-./configure && sudo make uninstall
+./configure prefix=/usr sysconfdir=/etc && make && sudo make uninstall
 ```
-
-* Remove binaries.
-
 
 ##USE OF LATCH PLUGIN FOR THE USERS
 **Latch does not affect in any case or in any way the usual operations with an account. It just allows or denies actions over it, acting as an independent extra layer of security that, once removed or without effect, will have no effect over the accounts, which will remain with their original state.**

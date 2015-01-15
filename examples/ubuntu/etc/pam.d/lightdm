@@ -2,7 +2,7 @@
 auth    requisite       pam_nologin.so
 auth    sufficient      pam_succeed_if.so user ingroup nopasswdlogin
 @include common-auth
-auth	required	pam_latch.so config=/etc/latch/latch.conf accounts=/etc/latch/latch.accounts operation=login otp=yes
+auth	required	    pam_latch.so config=/etc/latch/latch.conf accounts=/etc/latch/latch.accounts operation=login otp=yes
 auth    optional        pam_gnome_keyring.so
 auth    optional        pam_kwallet.so
 @include common-account

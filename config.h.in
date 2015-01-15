@@ -112,7 +112,7 @@
 /* HP-UX System */
 #undef HPUX
 
-/* Configuration directory */
+/* Latch configuration directory */
 #undef LATCH_CONF_DIR
 
 /* Linux System */

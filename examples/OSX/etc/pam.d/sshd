@@ -3,7 +3,7 @@ account    required	  pam_krb5.so use_kcminit
 auth       optional       pam_ntlm.so try_first_pass
 auth       optional       pam_mount.so try_first_pass
 auth       requisite	  pam_opendirectory.so try_first_pass
-auth	   required	  pam_latch.so config=/etc/latch/latch.conf accounts=/etc/latch/latch.accounts operation=sshd-login otp=yes
+auth	   required       pam_latch.so config=/etc/latch/latch.conf accounts=/etc/latch/latch.accounts operation=sshd-login otp=yes
 account    required       pam_nologin.so
 account    required       pam_sacl.so sacl_service=ssh
 account    required       pam_opendirectory.so
