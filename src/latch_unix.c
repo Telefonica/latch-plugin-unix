@@ -113,7 +113,7 @@ static int latch_unpair(const char *username, const char *pAccountId, const char
         printf("%s\n", RESTORE_PRIVS_ERROR_MSG);
     } 
 
-    if (deleteAccountId(username, accountsFile) == -1) {
+    if (deleteAccountId(username, accountsFile) != 0) {
         fprintf(stderr, "%s %s\n", WRITE_ACC_FILE_ERROR_MSG, accountsFile);
         free((char*)pAccountId);
         return 1;
@@ -182,7 +182,7 @@ static int latch_operation_status(const char *username, const char *pAccountId, 
 
     fprintf(stdout, CHECK_STATUS_$USER_MSG, username);
     buffer = operationStatus(pAccountId, pOperationId);
-          
+
     if(buffer == NULL || strcmp(buffer,"") == 0) {
         fprintf(stderr, "%s\n", CONNECTION_SERVER_ERROR_MSG);
         free(buffer);
@@ -198,6 +198,9 @@ static int latch_operation_status(const char *username, const char *pAccountId, 
         res = 1;
     } else if (strstr(buffer, "\"error\":{\"code\":109") != NULL) {
         fprintf(stderr, "%s\n", LATCH_ERROR_109_MSG);
+        res = 1;
+    } else if (strstr(buffer, "\"error\":{\"code\":201") != NULL) {
+        fprintf(stderr, LATCH_ERROR_201_$USER_MSG, username);
         res = 1;
     } else if (strstr(buffer, "\"error\":{\"code\":301") != NULL) {
         fprintf(stderr, LATCH_ERROR_301_$USER_MSG, username);

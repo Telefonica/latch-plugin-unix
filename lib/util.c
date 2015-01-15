@@ -80,18 +80,25 @@ int deleteAccountId(const char* pUsername, const char* pAccounts) {
 
     char* line = NULL;
     size_t len = 0;
+    size_t pathlen = 0;
     ssize_t read;
     FILE *fp;
     int fp_dest;
-    char nameBuff[32];
+    char *nameBuff;
 
     fp = fopen(pAccounts, "r");
     if (fp == NULL) {
         return -1;
     }
 
-    strncpy(nameBuff,"/tmp/latch-XXXXXX",17);
-    nameBuff[17] = '\0';
+    char *pLastSlash = strrchr(pAccounts,'/');
+    if(pLastSlash != NULL)
+        pathlen =  pLastSlash - pAccounts + 1;
+
+    nameBuff = malloc(pathlen + 12 + 1);
+    strncpy(nameBuff, pAccounts, pathlen);
+    strncpy(nameBuff + pathlen, "latch-XXXXXX", 12);
+    nameBuff[pathlen + 12] = '\0';
 
     fp_dest = mkstemp(nameBuff);
     if (fp_dest == -1) {

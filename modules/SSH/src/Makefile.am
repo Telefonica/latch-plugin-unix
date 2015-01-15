@@ -2,7 +2,7 @@ AUTOMAKE_OPTIONS = no-dependencies
 DEFS =
 
 AM_CPPFLAGS = -I$(top_srcdir)/lib
-LIBS = @LIBS@ -lcurl -lcrypto -lssl -ldl
+LIBS = @LIBS@ -lcurl -lcrypto -lssl
 
 bin_PROGRAMS = latch-ssh-cmd
 latch_ssh_cmd_SOURCES = 	latch_ssh_command.c \

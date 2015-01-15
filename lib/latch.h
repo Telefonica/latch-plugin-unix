@@ -17,32 +17,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
-// libcurl
-#include <curl/curl.h>
-#include <curl/easy.h>
-
-// openssl
-#include <openssl/hmac.h>
-#include <openssl/bio.h>
-#include <openssl/evp.h>
-#include <openssl/buffer.h>
-
-#define AUTHORIZATION_HEADER_NAME "Authorization"
-#define DATE_HEADER_NAME "X-11Paths-Date"
-#define AUTHORIZATION_METHOD "11PATHS"
-#define AUTHORIZATION_HEADER_FIELD_SEPARATOR " "
-#define UTC_STRING_FORMAT "%Y-%m-%d %H:%M:%S"
-#define LATCH_BUFFER_SIZE (256 * 1024) /* 256kB */
-
-#define API_CHECK_STATUS_URL "/api/0.6/status"
-#define API_PAIR_URL "/api/0.6/pair"
-#define API_PAIR_WITH_ID_URL "/api/0.6/pairWithId"
-#define API_UNPAIR_URL "/api/0.6/unpair"
+#ifndef __LATCH_H__
+#define __LATCH_H__
 
 void init(const char*, const char*);
 void setHost(const char*);
@@ -52,8 +28,22 @@ void setNoSignal(const int);
 void setTLSCAFile(const char*);
 void setTLSCAPath(const char*);
 void setTLSCRLFile(const char*);
+
 char* pairWithId(const char*);
 char* pair(const char*);
 char* status(const char*);
 char* operationStatus(const char*, const char*);
 char* unpair(const char*);
+char* lock(const char*);
+char* operationLock(const char*, const char*);
+char* unlock(const char*);
+char* operationUnlock(const char*, const char*);
+char* history(const char*);
+char* timePeriodHistory(const char*, time_t, time_t);
+char* operationCreate(const char*, const char*, const char*, const char*);
+char* operationUpdate(const char*, const char*, const char*, const char*);
+char* operationRemove(const char*);
+char* operationGet(const char*);
+char* operationsGet();
+
+#endif /* __LATCH_H__ */
