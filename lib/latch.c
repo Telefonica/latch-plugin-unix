@@ -6,12 +6,12 @@
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- 
+
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- 
+
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
@@ -68,7 +68,7 @@ typedef struct http_param {
 
 /*
  * Function to handle stuff from HTTP response.
- * 
+ *
  * @param buf- Raw buffer from libcurl.
  * @param len- number of indexes
  * @param size- size of each index
@@ -92,7 +92,7 @@ static int writeFn(void* buf, size_t len, size_t size, void* userdata) {
 
 /*
  * Function to encode a string in Base64 format
- * 
+ *
  * @param input- string to encode
  * @param length- string length
  * @return encoded string in Base64 format
@@ -157,7 +157,7 @@ char* urlEncode(const char* str, int space2Plus) {
 
 /*
  * Function to calculate the HMAC hash (SHA1) of a string. Returns a Base64 value of the hash
- * 
+ *
  * @param pSecretKey- secret key
  * @param pData- original data to calculate the HMAC
  * @return HMAC in Base64 format

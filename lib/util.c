@@ -6,12 +6,12 @@
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- 
+
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- 
+
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <syslog.h> 
+#include <syslog.h>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <pwd.h>
@@ -105,21 +105,21 @@ int deleteAccountId(const char* pUsername, const char* pAccounts) {
         fclose(fp);
         return -1;
     }
-   
+
     while ((read = getline(&line,&len, fp)) != -1) {
         if (! (strncmp(pUsername, line, strlen(pUsername)) == 0  &&  line[strlen(pUsername)] == ':')) {
             if (write(fp_dest, line, read) != read) {
                 free(line);
                 close(fp_dest);
-                fclose(fp); 
-                return -1;  
+                fclose(fp);
+                return -1;
             }
         }
     }
 
     free(line);
     close(fp_dest);
-    fclose(fp); 
+    fclose(fp);
 
     if (rename(nameBuff, pAccounts) != 0) {
         return 1;
@@ -146,8 +146,8 @@ const char* getAccountId(const char* pUser, const char* pAccounts) {
     }
 
     while((read = getline(&line,&len, fp)) != -1){
-        if((read == strlen(pUser) + ACCOUNT_ID_LENGTH + 3)  &&  
-                strncmp(pUser, line, strlen(pUser)) == 0  &&  
+        if((read == strlen(pUser) + ACCOUNT_ID_LENGTH + 3)  &&
+                strncmp(pUser, line, strlen(pUser)) == 0  &&
                 line[strlen(pUser)] == ':'){
             toReturn = malloc(ACCOUNT_ID_LENGTH + 1);
             strncpy(toReturn, line + strlen(pUser) + 2, ACCOUNT_ID_LENGTH);
@@ -207,11 +207,11 @@ const char *getConfig(int max_size, const char* pParameter, const char* pConfig)
 
 /*
  * Log a message into auth logger
- * 
+ *
  * @param Message
  */
-void send_syslog_alert(char *ident, const char *msg){  
-    openlog (ident, LOG_PID, LOG_AUTH);    
-    syslog (LOG_ALERT, msg); 
+void send_syslog_alert(char *ident, const char *msg){
+    openlog (ident, LOG_PID, LOG_AUTH);
+    syslog (LOG_ALERT, msg);
     closelog ();
 }

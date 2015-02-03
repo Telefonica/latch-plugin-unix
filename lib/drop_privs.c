@@ -4,24 +4,24 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
-#include <syslog.h> 
+#include <syslog.h>
 #include <sys/stat.h>
 #include <pwd.h>
 
 #include "drop_privs.h"
-   
-   
+
+
 static int   orig_ngroups = -1;
 static gid_t orig_gid = -1;
 static uid_t orig_uid = -1;
 static gid_t orig_groups[NGROUPS_MAX];
-   
+
 
 
 int drop_privileges(int permanent) {
     gid_t newgid = getgid(), oldgid = getegid();
     uid_t newuid = getuid(), olduid = geteuid();
-   
+
     if (!permanent && orig_uid == -1 && orig_gid == -1 && orig_ngroups == -1) {
         /* Save information about the privileges that are being dropped so that they
          * can be restored later. Only once.
@@ -37,7 +37,7 @@ int drop_privileges(int permanent) {
     * whether privileges are being dropped temporarily or permanently.
     */
     if (!olduid) setgroups(1, &newgid);
-   
+
     if (newgid != oldgid) {
 #if !defined(linux)
         setegid(newgid);
@@ -46,7 +46,7 @@ int drop_privileges(int permanent) {
         if (setregid((permanent ? newgid : -1), newgid) == -1) return -1;
 #endif
     }
- 
+
     if (newuid != olduid) {
         if (permanent) {
             setuid(newuid);
@@ -54,7 +54,7 @@ int drop_privileges(int permanent) {
             seteuid(newuid);
         }
     }
- 
+
     /* verify that the changes were successful */
     if (permanent) {
         if (newgid != oldgid && (setegid(oldgid) != -1 || getegid() != newgid))
@@ -68,10 +68,10 @@ int drop_privileges(int permanent) {
 
     return 0;
 }
-   
+
 int restore_privileges(void) {
     if (geteuid() != orig_uid)
-        if (seteuid(orig_uid) == -1 || geteuid() != orig_uid) return -1;   
+        if (seteuid(orig_uid) == -1 || geteuid() != orig_uid) return -1;
     if (getegid() != orig_gid)
         if (setegid(orig_gid) == -1 || getegid() != orig_gid) return -1;
     if (!orig_uid)
