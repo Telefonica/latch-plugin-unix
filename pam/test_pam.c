@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
     }
 
     retval = pam_start("check_user", user, &conv, &pamh);
-        
+
     if (retval == PAM_SUCCESS)
         retval = pam_authenticate(pamh, 0);    /* is user really user? */
 

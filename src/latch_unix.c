@@ -6,12 +6,12 @@
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- 
+
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- 
+
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
@@ -25,6 +25,7 @@
 #include <unistd.h>
 #include <pwd.h>
 #include <errno.h>
+#include <string.h>
 
 #include "latch_unix.h"
 #include "latch.h"
@@ -45,7 +46,7 @@ void print_version() {
 static int latch_pair(const char *username, const char *pAccountId, const char *accountsFile, int aperms, char *pairingCode) {
     int res = 0;
     char *acc_id = NULL;
-    char *buffer = NULL; 
+    char *buffer = NULL;
     char *pstr = NULL;
 
     if (pAccountId != NULL) {
@@ -102,7 +103,7 @@ static int latch_pair(const char *username, const char *pAccountId, const char *
 
 static int latch_unpair(const char *username, const char *pAccountId, const char *accountsFile, int aperms) {
     int res = 0;
-    char *buffer = NULL; 
+    char *buffer = NULL;
 
     if (pAccountId == NULL) {
         fprintf(stderr, NOT_PAIRED_$USER_MSG, username);
@@ -111,7 +112,7 @@ static int latch_unpair(const char *username, const char *pAccountId, const char
 
     if (aperms && restore_privileges()) {
         printf("%s\n", RESTORE_PRIVS_ERROR_MSG);
-    } 
+    }
 
     if (deleteAccountId(username, accountsFile) != 0) {
         fprintf(stderr, "%s %s\n", WRITE_ACC_FILE_ERROR_MSG, accountsFile);
@@ -133,7 +134,7 @@ static int latch_unpair(const char *username, const char *pAccountId, const char
 
 static int latch_status(const char *username, const char *pAccountId) {
     int res = 0;
-    char *buffer = NULL; 
+    char *buffer = NULL;
 
     if (pAccountId == NULL) {
         fprintf(stderr, NOT_PAIRED_$USER_MSG, username);
@@ -173,7 +174,7 @@ static int latch_status(const char *username, const char *pAccountId) {
 
 static int latch_operation_status(const char *username, const char *pAccountId, const char *pOperationId) {
     int res = 0;
-    char *buffer = NULL; 
+    char *buffer = NULL;
 
     if (pAccountId == NULL) {
         fprintf(stderr, NOT_PAIRED_$USER_MSG, username);
@@ -230,18 +231,18 @@ int main(int argc, char **argv) {
     int index = 0;
     int c;
     const char *pAccountId = NULL;
-    const char* pUsername = NULL;                
+    const char* pUsername = NULL;
     const char *pSecretKey = NULL;
     const char *pAppId = NULL;
     const char *pHost = NULL;
-    const char *pTimeout = NULL; 
-    const char *pOperationId = NULL;  
+    const char *pTimeout = NULL;
+    const char *pOperationId = NULL;
     int timeout = 2;
     int res = 0;
     FILE *f;
 
     opterr = 0;
-  
+
     if (argc < 2) {
         print_usage();
         return 1;
@@ -306,13 +307,13 @@ int main(int argc, char **argv) {
          print_usage();
          return 1;
     }
-           
+
     pUsername = get_user_name();
     if (pUsername == NULL) {
         fprintf(stderr, "%s\n", GET_USERNAME_ERROR_MSG);
         return 1;
     }
-      
+
     if (avalue == NULL) {
         avalue = DEFAULT_LATCH_ACCOUNTS_FILE;
         aperms = 1;
@@ -320,7 +321,7 @@ int main(int argc, char **argv) {
         fprintf(stderr, ACCESS_RW_ERROR_$USER_$FILE_MSG, pUsername, avalue);
         return 1;
     }
-      
+
     if (fvalue == NULL) {
         fvalue = DEFAULT_LATCH_CONFIG_FILE;
         fperms = 1;
@@ -328,7 +329,7 @@ int main(int argc, char **argv) {
         fprintf(stderr, ACCESS_R_ERROR_$USER_$FILE_MSG, pUsername, fvalue);
         return 1;
     }
-      
+
     if (!fperms && drop_privileges(0)) {
         printf("%s\n", DROP_PRIVS_ERROR_MSG);
         return 1;
@@ -363,21 +364,21 @@ int main(int argc, char **argv) {
     if (!aperms && drop_privileges(0)) {
         printf("%s\n", DROP_PRIVS_ERROR_MSG);
         return 1;
-    } 
+    }
 
     if (aperms && !fperms && restore_privileges()) {
         printf("%s\n", RESTORE_PRIVS_ERROR_MSG);
-    }    
+    }
 
     pAccountId = getAccountId(pUsername, avalue);
- 
+
 	if (drop_privileges(0)) {
     	printf("%s\n", DROP_PRIVS_ERROR_MSG);
     	return 1;
 	}
 
     init(pAppId, pSecretKey);
-    setHost(pHost);    
+    setHost(pHost);
     setTimeout(timeout);
 
     if (sflag) {
@@ -391,7 +392,7 @@ int main(int argc, char **argv) {
     }
 
     free((char*)pAccountId);
-    free((char*)pAppId); 
+    free((char*)pAppId);
     free((char*)pSecretKey);
     free((char*)pHost);
     free((char*)pOperationId);

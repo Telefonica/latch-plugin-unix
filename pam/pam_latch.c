@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- 
+
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- 
+
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
@@ -51,7 +51,7 @@ PAM_EXTERN int pam_sm_setcred( pam_handle_t *pamh, int flags, int argc, const ch
 
 /*
  * Makes getting arguments easier. Accepted arguments are of the form: name=value
- * 
+ *
  * @param pName- name of the argument to get
  * @param argc- number of total arguments
  * @param argv- arguments
@@ -119,7 +119,7 @@ char *get_response(pam_handle_t *pamh, const char *prompt, int verbose) {
 PAM_EXTERN int pam_sm_authenticate(pam_handle_t* pamh, int flags, int argc, const char **argv) {
     int ret = 0;
 
-    const char *pUsername = NULL;                
+    const char *pUsername = NULL;
     const char *pAccountId = NULL;
     const char *pOperation = NULL;
     const char *pSecretKey = NULL;
@@ -131,22 +131,22 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t* pamh, int flags, int argc, cons
     const char *pHost = NULL;
     const char *pTimeout = NULL;
     char *pDefaultOption = NULL;
-    char *buffer;       
-    int timeout = 2; 
-    int default_option = PAM_SUCCESS;  
-    int res =  PAM_SUCCESS;   
+    char *buffer;
+    int timeout = 2;
+    int default_option = PAM_SUCCESS;
+    int res =  PAM_SUCCESS;
     char *otp = NULL;
-    
-    
+
+
     struct pam_message msg[1],*pmsg[1];
     struct pam_response *resp;
 
-    // setting up conversation call prompting for one-time code 
+    // setting up conversation call prompting for one-time code
     pmsg[0] = &msg[0] ;
     msg[0].msg_style = PAM_PROMPT_ECHO_ON ;
     msg[0].msg = "One-time code: " ;
     resp = NULL ;
-    
+
 
     if (pam_get_user(pamh, &pUsername, NULL) != PAM_SUCCESS) {
         return PAM_AUTH_ERR;
@@ -159,14 +159,14 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t* pamh, int flags, int argc, cons
 
     pAccountId = getAccountId(pUsername, pAccounts);
     if (pAccountId == NULL) {
-        return PAM_SUCCESS; 
+        return PAM_SUCCESS;
     }
 
     pConfig = getArg("config", argc, argv);
     if (!pConfig) {
         pConfig = DEFAULT_LATCH_CONFIG_FILE;
     }
-    
+
     pOperation = getArg("operation", argc, argv);
     if (!pOperation) {
         pOperationId = NULL;
@@ -176,17 +176,17 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t* pamh, int flags, int argc, cons
             send_syslog_alert("PAM", "Latch-auth-pam error: Failed to find operation");
             perror("Failed to find operation");
             return PAM_SUCCESS;
-        } 
+        }
     }
 
     pOtp = getArg("otp", argc, argv);
     if (!pOtp) {
         pOtp = "no";
     }
-    
+
     pDefaultOption = (char *)getConfig(DEFAULT_OPTION_MAX_LENGTH, "action", pConfig);
     if (pDefaultOption == NULL) {
-        pDefaultOption = malloc(4 + 1); 
+        pDefaultOption = malloc(4 + 1);
         memset(pDefaultOption, 0, 4 + 1);
         strncpy(pDefaultOption, "open", 4);
     } else if (strcmp(pDefaultOption,"open") != 0 && strcmp(pDefaultOption,"close") != 0){
@@ -194,14 +194,14 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t* pamh, int flags, int argc, cons
         memset(pDefaultOption, 0, 4 + 1);
         strncpy(pDefaultOption, "open", 4);
     }
-    
+
     if (strcmp(pDefaultOption,"open") == 0) {
         default_option = PAM_SUCCESS;
     } else {
         default_option = PAM_AUTH_ERR;
     }
     free(pDefaultOption);
-   
+
     pAppId = getConfig(APP_ID_LENGTH, "app_id", pConfig);
     pSecretKey = getConfig(SECRET_KEY_LENGTH, "secret_key", pConfig);
 
@@ -224,8 +224,8 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t* pamh, int flags, int argc, cons
     if(pTimeout == NULL || ((timeout = atoi(pTimeout)) < TIMEOUT_MIN) || timeout > TIMEOUT_MAX) {
         timeout = 2;
     }
-    free((char*)pTimeout); 
- 
+    free((char*)pTimeout);
+
     if (drop_privileges(0)) {
         send_syslog_alert("PAM", "Latch-auth-pam error: Couldn't drop privileges");
     }
@@ -239,12 +239,12 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t* pamh, int flags, int argc, cons
     } else {
         buffer = status(pAccountId);
     }
-    free((char*)pAppId); 
+    free((char*)pAppId);
     free((char*)pSecretKey);
     free((char*)pAccountId);
     free((char*)pOperationId);
     free((char*)pHost);
- 
+
     if (restore_privileges()) {
         send_syslog_alert("PAM", "Latch-auth-pam error: Couldn't restore privileges");
     }
@@ -260,7 +260,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t* pamh, int flags, int argc, cons
         res = PAM_AUTH_ERR;
 
     }else if (strstr(buffer, "\"status\":\"on\"") != NULL) {
-        
+
         if(strncmp(pOtp, "yes", 3) == 0){
 
             char *pch;
@@ -269,18 +269,18 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t* pamh, int flags, int argc, cons
                 memset(code, 0, OTP_LENGTH);
 
                 strncpy (code, pch + strlen("\"two_factor\":{\"token\":\""), OTP_LENGTH);
-                
+
                 otp = get_response(pamh, "One-time password", 1);
-     
-                // comparing user input with known code 
+
+                // comparing user input with known code
                 if(strncmp(code, otp, OTP_LENGTH) != 0  || strlen(otp) != OTP_LENGTH){
                     send_syslog_alert("PAM", "Latch-auth-pam warning: Someone tried to access. Bad OTP");
                     res = PAM_AUTH_ERR;
                 } else {
                     res = PAM_SUCCESS;
-                }                    
+                }
             }
-            
+
         }else{
             res = PAM_SUCCESS;
         }

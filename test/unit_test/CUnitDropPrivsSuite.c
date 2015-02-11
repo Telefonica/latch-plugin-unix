@@ -12,7 +12,7 @@
  * Drop_privileges Test
  *-------------------------------------------------------------------------*/
 
-void test_drop_privileges() 
+void test_drop_privileges()
 {
     char *e_user_name_initial = get_effective_user_name();
     char *r_user_name_initial = get_user_name();
@@ -21,7 +21,7 @@ void test_drop_privileges()
     CU_ASSERT_PTR_NOT_NULL_FATAL(r_user_name_initial);
 
     // drop_privs temp
-    int response1 = drop_privileges(0); 
+    int response1 = drop_privileges(0);
     char *e_user_name1 = get_effective_user_name();
     char *r_user_name1 = get_user_name();
 
@@ -31,7 +31,7 @@ void test_drop_privileges()
     CU_ASSERT_STRING_EQUAL(r_user_name1, e_user_name1);
 
     // drop_privs temp again
-    int response2 = drop_privileges(0); 
+    int response2 = drop_privileges(0);
     char *e_user_name2 = get_effective_user_name();
     char *r_user_name2 = get_user_name();
 
@@ -51,7 +51,7 @@ void test_drop_privileges()
     CU_ASSERT_STRING_EQUAL(e_user_name_initial, e_user_name3);
 
     // drop_privs definitely
-    int response4 = drop_privileges(1); 
+    int response4 = drop_privileges(1);
     char *e_user_name4 = get_effective_user_name();
     char *r_user_name4 = get_user_name();
 
@@ -70,7 +70,7 @@ void test_drop_privileges()
     CU_ASSERT_STRING_EQUAL(r_user_name5, e_user_name5);
 
     // drop_privs temp (being dropped definitely)
-    int response6 = drop_privileges(0); 
+    int response6 = drop_privileges(0);
     char *e_user_name6 = get_effective_user_name();
     char *r_user_name6 = get_user_name();
 
@@ -80,7 +80,7 @@ void test_drop_privileges()
     CU_ASSERT_STRING_EQUAL(r_user_name6, e_user_name6);
 
     // drop_privs definitely again
-    int response7 = drop_privileges(1); 
+    int response7 = drop_privileges(1);
     char *e_user_name7 = get_effective_user_name();
     char *r_user_name7 = get_user_name();
 

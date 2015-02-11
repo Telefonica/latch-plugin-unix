@@ -13,7 +13,7 @@
  * ValidCode Test
  *-------------------------------------------------------------------------*/
 
-void test_valid_code() 
+void test_valid_code()
 {
     char *input1 = "DD3abC";
     char *input2 = "AB8mb9";
@@ -38,7 +38,7 @@ void test_valid_code()
     CU_ASSERT(validCode(input10));
 }
 
-void test_valid_code_exceptions() 
+void test_valid_code_exceptions()
 {
     char *input1 = "0abcmn";
     char *input2 = "OfrtX6";
@@ -85,7 +85,7 @@ void test_valid_code_short()
     CU_ASSERT_FALSE(validCode(input4));
 }
 
-void test_valid_code_long() 
+void test_valid_code_long()
 {
     char *input1 = "fsdgdfhgfhghkkjhkkghtryt67rhrtu";
     char *input2 = "rtde886";
