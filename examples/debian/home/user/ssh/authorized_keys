@@ -1,5 +1,5 @@
-command="latch-shell -o sshd-keys" ssh-rsa AAA...HP5 someone@host
+command="latch-shell-cmd -o sshd-keys" ssh-rsa AAA...HP5 someone@host
 
-command="latch-shell -o sshd-keys" ssh-rsa ABB...A7R someone@host
+command="latch-shell-cmd -o sshd-keys" ssh-rsa ABB...A7R someone@host
 
-command="latch-shell -o sshd-keys" ssh-rsa ABC...3AA someone@host
+command="latch-shell-cmd -o sshd-keys" ssh-rsa ABC...3AA someone@host
